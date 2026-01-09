@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Panel de Control{% endblock %}
+
+{% block body %}
+
+
+<div class="container mt-3">
+
+    <!-- PRIMERA FILA -->
+    <div class="row align-items-center mb-4">
+        <div class="col text-center">
+            <h2 class="m-0">Panel de Control</h2>
+        </div>
+        <div class="col-auto ms-auto d-flex gap-2">
+            <a href="/ajustes" class="btn btn-secondary btn-sm">Ajustes</a>
+            <a href="/apagar" class="btn btn-danger btn-sm">Apagar</a>
+        </div>
+    </div>
+
+    <form id="form_config" method="POST" action="/start">
+
+        <!-- SEGUNDA FILA: selector de modalidad -->
+        <div class="row my-4">
+            <div class="col text-center">
+                <select id="modalidad" name="modalidad"
+                        class="form-select d-inline-block"
+                        style="width: auto;">
+                    {% for mid, datos in modalidades.items() %}
+                        <option value="{{ mid }}" {% if mid == modalidad_actual %}selected{% endif %}>
+                            {{ datos.modalidad }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <!-- TERCERA FILA: campos -->
+        <div class="row mb-4">
+            <div class="col">
+
+                {% for campo, valor in campos.items() %}
+                    {% if campo not in ["modalidad", "modalidad_inicial"] %}
+
+                        <div class="row mb-2 align-items-center">
+                            <div class="col-6 text-end">
+                                <label class="col-form-label">{{ campo }}</label>
+                            </div>
+                            <div class="col-6 text-start">
+                                <input type="number"
+                                    class="form-control form-control-sm d-inline-block text-end"
+                                    style="width: 60px;"
+                                    name="{{ campo }}"
+                                    value="{{ valor }}">
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+            </div>
+        </div>
+
+        <!-- CUARTA FILA: botón START -->
+        <div class="row">
+            <div class="col text-center">
+                <button class="btn btn-success btn-lg px-5" type="submit">
+                    START
+                </button>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+
+<script>
+document.getElementById("modalidad").addEventListener("change", function() {
+    fetch("/ajax_modalidad", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({modalidad: this.value})
+    })
+    .then(r => r.json())
+    .then(data => {
+        for (const campo in data) {
+            const input = document.querySelector(`input[name="${campo}"]`);
+            if (input) input.value = data[campo];
+        }
+    });
+});
+</script>
+
+{% endblock %}

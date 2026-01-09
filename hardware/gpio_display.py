@@ -1,0 +1,1 @@
+print("Módulo GPIO aún no implementado")
