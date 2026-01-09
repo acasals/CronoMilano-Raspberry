@@ -16,6 +16,7 @@ class ConfigState:
     def _apply_dict(self, d):
         # Parámetros de modalidad
         self.modalidad = d.get("modalidad")
+        self.nombre = d.get("nombre")
         self.prep1 = d.get("prep1")
         self.prep2 = d.get("prep2")
         self.vuelo = d.get("vuelo")
@@ -29,17 +30,14 @@ class ConfigState:
         self.empezar_manga = d.get("empezar_manga")
         self.empezar_grupo = d.get("empezar_grupo")
 
-        # Identificador de modalidad
-        self.modalidad_inicial = d.get("modalidad_inicial")
-
         # Estado de manga/grupo/vuelo (se reinician en START)
-        self.manga = self.empezar_manga
-        self.grupo = self.empezar_grupo
-        self.vuelo_actual = 1
+        self.manga = d.get("manga")
+        self.grupo = d.get("grupo")
+        self.vuelo_actual = d.get("vuelo_actual")
 
         # Flags de control
-        self.acortar = False
-        self.alargar = False
+        self.acortar = d.get("acortar")
+        self.alargar = d.get("alargar")
 
     # ---------------------------------------------------------
     # MÉTODO PÚBLICO: update completo
@@ -122,6 +120,7 @@ class ConfigState:
         with self._lock:
             return {
                 "modalidad": self.modalidad,
+                "nombre": self.nombre,
                 "prep1": self.prep1,
                 "prep2": self.prep2,
                 "vuelo": self.vuelo,
@@ -132,7 +131,6 @@ class ConfigState:
                 "num_mangas": self.num_mangas,
                 "empezar_manga": self.empezar_manga,
                 "empezar_grupo": self.empezar_grupo,
-                "modalidad_inicial": self.modalidad_inicial,
                 "cronoenmarcha": self.cronoenmarcha,
                 "fase": self.fase,
                 "tiempo_restante": self.tiempo_restante,
