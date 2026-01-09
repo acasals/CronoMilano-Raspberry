@@ -1,5 +1,5 @@
-from flask import Flask, render_template, request, jsonify
-from config.modalidades import MODALIDADES
+from flask import Flask, render_template, request, jsonify,current_app
+from config.modalidades import MODALIDADES, MODALIDADES_VISIBLES, MODALIDADES_TODOS
 import os
 
 # Estas dos variables las inyectará app.py
@@ -9,9 +9,8 @@ crono = None
 app = Flask(__name__)
 
 def run_web_server(shared_state, shared_crono):
-    global state, crono
-    state = shared_state
-    crono = shared_crono
+    app.config["STATE"] = shared_state
+    app.config["CRONO"] = shared_crono
     
     app.run(host="0.0.0.0", port=5000, debug=True, use_reloader=False)
 
@@ -20,23 +19,36 @@ def run_web_server(shared_state, shared_crono):
 # ---------------------------------------------------------
 @app.route("/")
 def index():
+    state = current_app.config["STATE"]
     cfg = state.get_dict()
+    modalidad_actual =cfg["modalidad"]
+    visibles = MODALIDADES_VISIBLES.get(modalidad_actual, {})
+    modalidades_todos=MODALIDADES_TODOS
+    
     return render_template(
         "index.html",
         modalidades=MODALIDADES,
-        modalidad_actual=cfg["modalidad_inicial"],
-        campos=cfg
+        modalidad_actual=cfg["modalidad"],
+        estado=cfg,
+        modalidades_todos = modalidades_todos,
+        visibles= visibles
     )
 
 # ---------------------------------------------------------
 # AJAX: cargar valores de una modalidad
 # ---------------------------------------------------------
-@app.route("/ajax_modalidad", methods=["POST"])
+@app.post("/ajax_modalidad")
 def ajax_modalidad():
     modalidad = request.json["modalidad"]
-    campos = MODALIDADES[modalidad]
-    return jsonify(campos)
 
+    valores = MODALIDADES[modalidad]
+
+    visibles = MODALIDADES_VISIBLES[modalidad]  # dict {campo: label}
+
+    return jsonify({
+        "valores": valores,
+        "visibles": visibles
+    })
 # ---------------------------------------------------------
 # START: recibe parámetros editados y arranca el concurso
 # ---------------------------------------------------------
