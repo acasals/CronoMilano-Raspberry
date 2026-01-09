@@ -28,7 +28,7 @@
                         style="width: auto;">
                     {% for mid, datos in modalidades.items() %}
                         <option value="{{ mid }}" {% if mid == modalidad_actual %}selected{% endif %}>
-                            {{ datos.modalidad }}
+                            {{ datos.nombre }}
                         </option>
                     {% endfor %}
                 </select>
@@ -36,32 +36,23 @@
         </div>
 
         <!-- TERCERA FILA: campos -->
-        <div class="row mb-4">
-            <div class="col">
-
-                {% for campo, valor in campos.items() %}
-                    {% if campo not in ["modalidad", "modalidad_inicial"] %}
-
-                        <div class="row mb-2 align-items-center">
-                            <div class="col-6 text-end">
-                                <label class="col-form-label">{{ campo }}</label>
-                            </div>
-                            <div class="col-6 text-start">
-                                <input type="number"
-                                    class="form-control form-control-sm d-inline-block text-end"
-                                    style="width: 60px;"
-                                    name="{{ campo }}"
-                                    value="{{ valor }}">
-                            </div>
-                        </div>
-                    {% endif %}
-                {% endfor %}
-
+        {% for campo, label in modalidades_todos.items() %}
+            <div class="row mb-2 align-items-center" id="fila-{{ campo }}">
+                <div class="col-6 text-end">
+                    <label class="col-form-label" id="label-{{ campo }}">{{ label }}</label>
+                </div>
+                <div class="col-6 text-start">
+                    <input type="number"
+                        class="form-control form-control-sm d-inline-block text-end"
+                        style="width: 60px;"
+                        name="{{ campo }}"
+                        value="{{ estado[campo] }}">
+                </div>
             </div>
-        </div>
+        {% endfor %}
 
         <!-- CUARTA FILA: botón START -->
-        <div class="row">
+        <div class="row my-4">
             <div class="col text-center">
                 <button class="btn btn-success btn-lg px-5" type="submit">
                     START
@@ -72,9 +63,25 @@
     </form>
 </div>
 
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const visibles = JSON.parse(`{{ visibles|tojson|safe }}`);
+    document.querySelectorAll("[id^='fila-']").forEach(fila => {
+        const campo = fila.id.replace("fila-", "");
+        if (!(campo in visibles)) {
+            fila.style.display = "none";
+        }
+    });
+});
+</script>
 
 <script>
 document.getElementById("modalidad").addEventListener("change", function() {
+
     fetch("/ajax_modalidad", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
@@ -82,12 +89,33 @@ document.getElementById("modalidad").addEventListener("change", function() {
     })
     .then(r => r.json())
     .then(data => {
-        for (const campo in data) {
+
+        // Convertimos visibles a JSON seguro para VS Code
+        const visibles = JSON.parse(JSON.stringify(data.visibles));
+
+        // 1. Actualizar valores
+        for (const campo in data.valores) {
             const input = document.querySelector(`input[name="${campo}"]`);
-            if (input) input.value = data[campo];
+            if (input) input.value = data.valores[campo];
         }
+
+        // 2. Mostrar los visibles y actualizar labels
+        for (const campo in visibles) {
+            const fila = document.getElementById(`fila-${campo}`);
+            const label = document.getElementById(`label-${campo}`);
+
+            if (fila) fila.style.display = "flex";
+            if (label) label.textContent = visibles[campo];
+        }
+
+        // 3. Ocultar los no visibles
+        document.querySelectorAll("[id^='fila-']").forEach(fila => {
+            const campo = fila.id.replace("fila-", "");
+            if (!(campo in visibles)) {
+                fila.style.display = "none";
+            }
+        });
     });
 });
 </script>
-
 {% endblock %}
