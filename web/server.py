@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify,current_app
-from config.modalidades import MODALIDADES, MODALIDADES_VISIBLES, MODALIDADES_TODOS
+from config.modalidades import MODALIDADES, MODALIDADES_VISIBLES, MODALIDADES_TODOS, CONCURSO_TODOS
 import os
 
 # Estas dos variables las inyectará app.py
@@ -21,9 +21,10 @@ def run_web_server(shared_state, shared_crono):
 def index():
     state = current_app.config["STATE"]
     cfg = state.get_dict()
-    modalidad_actual =cfg["modalidad"]
+    modalidad_actual = cfg["modalidad"]
     visibles = MODALIDADES_VISIBLES.get(modalidad_actual, {})
-    modalidades_todos=MODALIDADES_TODOS
+    modalidades_todos = MODALIDADES_TODOS
+    concurso_todos = CONCURSO_TODOS
     
     return render_template(
         "index.html",
@@ -31,6 +32,7 @@ def index():
         modalidad_actual=cfg["modalidad"],
         estado=cfg,
         modalidades_todos = modalidades_todos,
+        concurso_todos = concurso_todos,
         visibles= visibles
     )
 

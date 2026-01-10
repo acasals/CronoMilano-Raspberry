@@ -166,7 +166,6 @@ MODALIDADES_VISIBLES = {
         "aterrizaje": "Tiempo para aterrizar (seg)",
         "espera": "Pausa de espera (min)"
     }
-    
 }
 
 MODALIDADES_TODOS = {
@@ -176,4 +175,11 @@ MODALIDADES_TODOS = {
     "aterrizaje": "Tiempo para aterrizar (seg)",
     "espera": "Pausa de espera (min)",
     "num_vuelos": "Número de vuelos"
+}
+
+CONCURSO_TODOS = {
+    "num_mangas": "Número de mangas",
+    "num_grupos": "Número de grupos",
+    "empezar_manga": "Empezar por manga",
+    "empezar_grupo": "Empezar por grupo"
 }

@@ -9,6 +9,10 @@ def load_config_inicial():
     base["num_mangas"] = 6
     base["empezar_manga"] = 1
     base["empezar_grupo"] = 1
+    base["manga"] = 1
+    base["grupo"] = 1
     base["vuelo_actual"] = 1
-
+    base["acortar"] = False
+    base["alargar"]= False
+    
     return base

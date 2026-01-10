@@ -35,23 +35,45 @@
             </div>
         </div>
 
-        <!-- TERCERA FILA: campos -->
-        {% for campo, label in modalidades_todos.items() %}
-            <div class="row mb-2 align-items-center" id="fila-{{ campo }}">
-                <div class="col-6 text-end">
-                    <label class="col-form-label" id="label-{{ campo }}">{{ label }}</label>
+        <!-- TERCERA FILA: campos por modalidad -->
+        <div class="container d-inline-block border p-3">
+            {% for campo, label in modalidades_todos.items() %}
+                <div class="row mb-2 my-4 align-items-center" id="fila-{{ campo }}">
+                    <div class="col-6 text-end">
+                        <label class="col-form-label" id="label-{{ campo }}">{{ label }}</label>
+                    </div>
+                    <div class="col-6 text-start">
+                        <input type="number"
+                            min= 0
+                            class="form-control form-control-sm d-inline-block text-end"
+                            style="width: 60px;"
+                            name="{{ campo }}"
+                            value="{{ estado[campo] }}">
+                    </div>
                 </div>
-                <div class="col-6 text-start">
-                    <input type="number"
-                        class="form-control form-control-sm d-inline-block text-end"
-                        style="width: 60px;"
-                        name="{{ campo }}"
-                        value="{{ estado[campo] }}">
-                </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
 
-        <!-- CUARTA FILA: botón START -->
+        <!-- CUARTA FILA: campos comunes de concurso -->
+        <div class="container d-inline-block border my-4 p-3">
+            {% for campo, label in concurso_todos.items() %}
+                <div class="row mb-2 my-4 align-items-center" >
+                    <div class="col-6 text-end">
+                        <label class="col-form-label" id="label-{{ campo }}">{{ label }}</label>
+                    </div>
+                    <div class="col-6 text-start">
+                        <input type="number"
+                            min="0"
+                            class="form-control form-control-sm d-inline-block text-end"
+                            style="width: 60px;"
+                            name="{{ campo }}"
+                            value="{{ estado[campo] }}">
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- QUINTA FILA: botón START -->
         <div class="row my-4">
             <div class="col text-center">
                 <button class="btn btn-success btn-lg px-5" type="submit">
