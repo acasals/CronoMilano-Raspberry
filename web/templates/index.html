@@ -27,7 +27,7 @@
                         class="form-select d-inline-block"
                         style="width: auto;">
                     {% for mid, datos in modalidades.items() %}
-                        <option value="{{ mid }}" {% if mid == modalidad_actual %}selected{% endif %}>
+                        <option value="{{ mid }}" {% if mid == modalidad%}selected{% endif %}>
                             {{ datos.nombre }}
                         </option>
                     {% endfor %}
@@ -59,7 +59,7 @@
             {% for campo, label in concurso_todos.items() %}
                 <div class="row mb-2 my-4 align-items-center" >
                     <div class="col-6 text-end">
-                        <label class="col-form-label" id="label-{{ campo }}">{{ label }}</label>
+                        <label class="col-form-label" id="fila-{{ campo }}">{{ label }}</label>
                     </div>
                     <div class="col-6 text-start">
                         <input type="number"
