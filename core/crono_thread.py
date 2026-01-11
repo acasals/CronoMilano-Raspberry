@@ -61,53 +61,56 @@ class CronoThread(threading.Thread):
 
                 # --- PREPARACIÓN ---
                 prep = self.prep2 if self.repetido else self.prep1
-                if prep > 0:
+                if prep > 0 and not self._stop_flag:
                     self.state.set_fase("Preparación")
                     self.say_preparados()
                     self.countdown(prep * 60, audio=True, lanzamiento=True,
                                    acortable=True, alargable=True)
 
                 # --- VUELO ---
-                self.state.set_fase("Vuelo")
-                self.bocina()
-                if self.vuelo > 0:
-                    self.countdown(self.vuelo * 60, audio=True, lanzamiento=False,
-                                   acortable=True, alargable=False)
+                if self.state.cronoenmarcha:
+                    self.state.set_fase("Vuelo")
+                    self.bocina()
+                    if self.vuelo > 0 and not self._stop_flag:
+                        self.countdown(self.vuelo * 60, audio=True, lanzamiento=False,
+                                    acortable=True, alargable=False)
 
                 # --- ATERRIZAJE ---
-                self.state.set_fase("Aterrizaje")
-                self.bocina()
-                if self.aterrizaje > 0:
-                    self.countdown(self.aterrizaje, audio=False, lanzamiento=False,
-                                   acortable=False, alargable=False)
+                if self.state.cronoenmarcha:
+                    self.state.set_fase("Aterrizaje")
+                    self.bocina()
+                    if self.aterrizaje > 0:
+                        self.countdown(self.aterrizaje, audio=False, lanzamiento=False,
+                                    acortable=False, alargable=False)
 
                 # --- ESPERA ---
-                self.state.set_fase("Espera")
-                self.final()
-                if self.espera > 0:
-                    self.countdown(self.espera * 60, audio=False, lanzamiento=False,
-                                   acortable=True, alargable=True)
-                else:
-                    time.sleep(3)
+                if self.state.cronoenmarcha:
+                    self.state.set_fase("Espera")
+                    self.final()
+                    if self.espera > 0:
+                        self.countdown(self.espera * 60, audio=False, lanzamiento=False,
+                                    acortable=True, alargable=True)
+                    else:
+                        time.sleep(3)
 
                 # Siguiente vuelo
-                self.repetido = True
-                cuenta_vuelos -= 1
+                if self.state.cronoenmarcha:
+                    self.repetido = True
+                    cuenta_vuelos -= 1
 
-                if cuenta_vuelos <= 0:
-                    self.grupo += 1
-                    self.repetido = False
+                    if cuenta_vuelos <= 0:
+                        self.grupo += 1
+                        self.repetido = False
 
-                    if self.grupo > self.num_grupos:
-                        self.grupo = 1
-                        self.manga += 1
+                        if self.grupo > self.num_grupos:
+                            self.grupo = 1
+                            self.manga += 1
 
-                    cuenta_vuelos = self.num_vuelos
+                        cuenta_vuelos = self.num_vuelos
 
                 # Actualizar estado dinámico
                 self.state.set_manga_grupo_vuelo(self.manga, self.grupo, self.vuelo_actual)
 
-        print("CronoThread detenido")
 
     # ---------------------------------------------------------
     # COUNTDOWN
@@ -162,6 +165,7 @@ class CronoThread(threading.Thread):
         print("Final")
         
     def show_time(self,tiempo,audio,lanzamiento):
+        tiempo = int(tiempo)
         minutos=tiempo//60
         segundos=tiempo % 60
         print(minutos,segundos)
