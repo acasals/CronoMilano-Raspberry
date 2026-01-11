@@ -24,7 +24,7 @@ def main():
     web_thread.start()
 
     # --- GUI (opcional) ---
-    # start_gui(state)
+    # start_gui(state,crono)
 
     # --- SUPERVISOR ---
     try:
