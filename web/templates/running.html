@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Running{% endblock %}
+
+{% block body %}
+
+<div class="container mt-3">
+
+    <div class="row align-items-center mb-4">
+        <div class="col text-center">
+            <h2 class="m-0">Concurso en marcha</h2>
+        </div>
+    </div>
+
+    <div class="card text-center p-3 mb-3">
+        <h3>Fase: <span id="fase">---</span></h3>
+        <h1 class="display-3" id="tiempo">--</h1>
+    </div>
+
+    <div class="row my-4">
+        <div class="col text-center">
+            <button id="btn_acortar" class="btn btn-warning btn-lg" style="display:none;">
+                Acortar
+            </button>
+        </div>
+    </div>
+        
+    <div class="row my-4">
+        <div class="col text-center">
+            <button id="btn_alargar" class="btn btn-info btn-lg" style="display:none;">
+                Alargar
+            </button>
+        </div>
+    </div>
+
+    <div class="row my-4">
+        <div class="col text-center">
+            <button id="btn_stop" class="btn btn-danger btn-lg">
+                STOP
+            </button>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+// ---------------------------------------------
+// Formato mm:ss
+// ---------------------------------------------
+function formatoMMSS(segundos) {
+    const m = Math.floor(segundos / 60);
+    const s = segundos % 60;
+    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
+// ---------------------------------------------
+// Actualizar data del cronómetro
+// ---------------------------------------------
+const evtSource = new EventSource("/events");
+
+evtSource.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+    
+    // Actualizar fase y tiempo
+    document.getElementById("fase").textContent = data.fase;
+    document.getElementById("tiempo").textContent = formatoMMSS(data.tiempo_restante);
+
+    // Mostrar/ocultar botones según fase
+    const acortar = document.getElementById("btn_acortar");
+    const alargar = document.getElementById("btn_alargar");
+
+    acortar.style.display =
+        ["Preparación", "Vuelo", "Espera"].includes(data.fase)
+        ? "inline-block"
+        : "none";
+
+    alargar.style.display =
+        ["Preparación", "Espera"].includes(data.fase)
+        ? "inline-block"
+        : "none";
+
+    // Si el crono está detenido → volver a index
+    if (!data.cronoenmarcha) {
+        window.location.href = "/";
+    }
+
+};
+
+// function actualizar estado() {
+//     fetch("/data")
+//         .then(r => r.json())
+//         .then(data => {
+
+//             // Actualizar fase y tiempo
+//             document.getElementById("fase").textContent = data.fase;
+//             document.getElementById("tiempo").textContent = formatoMMSS(data.tiempo_restante);
+
+//             // Mostrar/ocultar botones según fase
+//             const acortar = document.getElementById("btn_acortar");
+//             const alargar = document.getElementById("btn_alargar");
+
+//             acortar.style.display =
+//                 ["Preparación", "Vuelo", "Espera"].includes(data.fase)
+//                 ? "inline-block"
+//                 : "none";
+
+//             alargar.style.display =
+//                 ["Preparación", "Espera"].includes(data.fase)
+//                 ? "inline-block"
+//                 : "none";
+
+//             // Si el crono está detenido → volver a index
+//             if (!data.cronoenmarcha) {
+//                 window.location.href = "/";
+//             }
+//         })
+//         .catch(err => {
+//             console.warn("Error obteniendo data:", err);
+//         });
+// }
+
+// ---------------------------------------------
+// Evitar intervalos duplicados
+// ---------------------------------------------
+// let intervalo = null;
+
+// document.addEventListener("DOMContentLoaded", () => {
+//     if (!intervalo) {
+//         intervalo = setInterval(actualizardata, 500);
+//     }
+// });
+
+// ---------------------------------------------
+// Botones
+// ---------------------------------------------
+document.getElementById("btn_acortar").onclick = () => {
+    fetch("/acortar", {method: "POST"});
+};
+
+document.getElementById("btn_alargar").onclick = () => {
+    fetch("/alargar", {method: "POST"});
+};
+
+document.getElementById("btn_stop").onclick = () => {
+    fetch("/stop", {method: "POST"})
+        .then(() => window.location.href = "/");
+};
+</script>
+
+{% endblock %}
