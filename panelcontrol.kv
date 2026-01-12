@@ -1,0 +1,113 @@
+#:set SPACING 10
+#:set PADDING 10
+#:set BORDER_COLOR (0.8, 0.8, 0.8, 1)
+#:set BG_LIGHT (0.95, 0.95, 0.95, 1)
+#:set BTN_SUCCESS (0.2, 0.7, 0.3, 1)
+#:set BTN_DANGER (0.8, 0.2, 0.2, 1)
+#:set BTN_SECONDARY (0.5, 0.5, 0.5, 1)
+
+<BootstrapContainer@BoxLayout>:
+    orientation: "vertical"
+    padding: PADDING
+    spacing: SPACING
+    
+
+    canvas.before:
+        Color:
+            rgba: BG_LIGHT
+        Rectangle:
+            pos: self.pos
+            size: self.size
+        Color:
+            rgba: BORDER_COLOR
+        Line:
+            rectangle: (*self.pos, *self.size)
+            width: 1
+
+<BtnSuccess@Button>:
+    background_normal: ""
+    background_color: BTN_SUCCESS
+    color: 1,1,1,1
+    font_size: 22
+    padding: 10,10
+
+<BtnDanger@Button>:
+    background_normal: ""
+    background_color: BTN_DANGER
+    color: 1,1,1,1
+    font_size: 16
+    padding: 8,8
+
+<BtnSecondary@Button>:
+    background_normal: ""
+    background_color: BTN_SECONDARY
+    color: 1,1,1,1
+    font_size: 16
+    padding: 8,8
+
+<NumberInput@TextInput>:
+    multiline: False
+    input_filter: "int"
+    halign: "right"
+    size_hint_x: None
+    width: 80
+    font_size: 18
+
+<PanelControl>:
+    orientation: "vertical"
+    padding: PADDING
+    spacing: SPACING
+    size_hint: 1, 1
+
+    # PRIMERA FILA
+    BoxLayout:
+        size_hint_y: None
+        height: 50
+
+        Label:
+            text: "Panel de Control"
+            font_size: 28
+            halign: "center"
+
+        BoxLayout:
+            size_hint_x: None
+            width: 200
+            spacing: SPACING
+
+            BtnSecondary:
+                text: "Ajustes"
+
+            BtnDanger:
+                text: "Apagar"
+                on_release: app.stop()
+                # on_release: root.apagar_sistema()
+
+
+    # SEGUNDA FILA: selector modalidad
+    BoxLayout:
+        size_hint_y: None
+        height: 50
+
+        Spinner:
+            id: spinner_modalidad
+            size_hint: None, None
+            size: 200, 40
+            text: "Modo 1"
+
+    # TERCERA FILA: campos por modalidad
+    BootstrapContainer:
+        id: campos_modalidad
+
+    # CUARTA FILA: campos comunes
+    BootstrapContainer:
+        id: campos_comunes
+
+    # QUINTA FILA: botón START
+    BoxLayout:
+        size_hint_y: None
+        height: 70
+
+        BtnSuccess:
+            text: "START"
+            size_hint_x: None
+            width: 200
