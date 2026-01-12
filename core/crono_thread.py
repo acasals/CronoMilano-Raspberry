@@ -133,7 +133,7 @@ class CronoThread(threading.Thread):
                 self.state.alargar = False
 
             now = time.monotonic()
-            rm = time_end - now
+            rm = int(time_end - now)
 
             if acortable and ac and rm > 90:
                 time_end -= 60
