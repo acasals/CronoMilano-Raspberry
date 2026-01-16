@@ -140,4 +140,21 @@ document.getElementById("modalidad").addEventListener("change", function() {
     });
 });
 </script>
+
+<script>
+// ---------------------------------------------
+// Pasar a running si crono está activo
+// ---------------------------------------------
+const evtSource = new EventSource("/events");
+
+evtSource.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+    
+    if (data.cronoenmarcha) {
+        window.location.href = "/running";
+    }
+
+};
+</script>
+
 {% endblock %}

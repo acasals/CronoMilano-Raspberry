@@ -85,6 +85,22 @@ def register_routes(app, state,crono):
     # ---------------------------------------------------------
     @app.route("/running")
     def running():
+        cfg = state.get_dict()
+        if not cfg["cronoenmarcha"]:
+            return render_template("running.html")
+            modalidad = cfg["modalidad"]
+            visibles = MODALIDADES_VISIBLES.get(modalidad, {})
+            modalidades_todos = MODALIDADES_TODOS
+            concurso_todos = CONCURSO_TODOS
+            return render_template(
+                "index.html",
+                modalidades=MODALIDADES,
+                modalidad=modalidad,
+                estado=cfg,
+                modalidades_todos = modalidades_todos,
+                concurso_todos = concurso_todos,
+                visibles= visibles
+        )
         return render_template("running.html")
 
     # ---------------------------------------------------------

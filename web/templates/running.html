@@ -90,49 +90,6 @@ evtSource.onmessage = function(event) {
 
 };
 
-// function actualizar estado() {
-//     fetch("/data")
-//         .then(r => r.json())
-//         .then(data => {
-
-//             // Actualizar fase y tiempo
-//             document.getElementById("fase").textContent = data.fase;
-//             document.getElementById("tiempo").textContent = formatoMMSS(data.tiempo_restante);
-
-//             // Mostrar/ocultar botones según fase
-//             const acortar = document.getElementById("btn_acortar");
-//             const alargar = document.getElementById("btn_alargar");
-
-//             acortar.style.display =
-//                 ["Preparación", "Vuelo", "Espera"].includes(data.fase)
-//                 ? "inline-block"
-//                 : "none";
-
-//             alargar.style.display =
-//                 ["Preparación", "Espera"].includes(data.fase)
-//                 ? "inline-block"
-//                 : "none";
-
-//             // Si el crono está detenido → volver a index
-//             if (!data.cronoenmarcha) {
-//                 window.location.href = "/";
-//             }
-//         })
-//         .catch(err => {
-//             console.warn("Error obteniendo data:", err);
-//         });
-// }
-
-// ---------------------------------------------
-// Evitar intervalos duplicados
-// ---------------------------------------------
-// let intervalo = null;
-
-// document.addEventListener("DOMContentLoaded", () => {
-//     if (!intervalo) {
-//         intervalo = setInterval(actualizardata, 500);
-//     }
-// });
 
 // ---------------------------------------------
 // Botones
