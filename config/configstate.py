@@ -38,6 +38,11 @@ class ConfigState:
         # Flags de control
         self.acortar = d.get("acortar")
         self.alargar = d.get("alargar")
+        
+        # Ajustes
+        self.brillo_display = 50
+        self.volumen = 50
+        self.brillo_digitos = 50
 
     # ---------------------------------------------------------
     # MÉTODO PÚBLICO: update completo
@@ -136,5 +141,8 @@ class ConfigState:
                 "tiempo_restante": self.tiempo_restante,
                 "manga": self.manga,
                 "grupo": self.grupo,
-                "vuelo_actual": self.vuelo_actual
+                "vuelo_actual": self.vuelo_actual,
+                "brillo_display": self.brillo_display,
+                "volumen": self.volumen,
+                "brillo_digitos": self.brillo_digitos
             }
