@@ -1,7 +1,10 @@
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.label import Label
+from kivy.uix.textinput import TextInput
 from kivy.core.window import Window
-from config.modalidades import MODALIDADES
+from kivy.uix.widget import Widget
+from config.modalidades import MODALIDADES, MODALIDADES_VISIBLES, MODALIDADES_TODOS, CONCURSO_TODOS
 
 class PanelControl(BoxLayout):
     def __init__(self, state, crono, **kwargs):
@@ -11,38 +14,66 @@ class PanelControl(BoxLayout):
         self.crono = crono
 
         # --- AQUÍ van los valores iniciales -
-        ESTO ESTÁ MAL, CORREGIRLO OTRO DIA. iMPORTAR MODALIADES
-        self.modalidades = state.modalidades
-        self.modalidad_actual = state.modalidad
+        self.modalidades = MODALIDADES
+        self.modalidad = state.modalidad
 
         # Spinner: cargar valores
-        self.ids.spinner_modalidad.values = list(self.modalidades.keys())
-        self.ids.spinner_modalidad.text = self.modalidad_actual
+        self.ids.spinner_modalidad.values = [v["nombre"] for v in self.modalidades.values()]
+        self.ids.spinner_modalidad.text = self.modalidades[self.modalidad]["nombre"]
 
         # Vincular evento
         self.ids.spinner_modalidad.bind(text=self.on_modalidad_change)
 
         # Cargar campos iniciales
-        self.actualizar_campos_modalidad()
-        self.cargar_campos(self.ids.campos_comunes, state.concurso_todos)
+        self.cfg = self.state.get_dict()
+        self.actualizar_campos()
+               
 
     def on_modalidad_change(self, spinner, value):
-        self.modalidad_actual = value
-        self.actualizar_campos_modalidad()
-
-    def actualizar_campos_modalidad(self):
-        campos = self.modalidades[self.modalidad_actual]["campos"]
-        campos_dict = {c: self.state.modalidades_todos[c] for c in campos}
-        self.cargar_campos(self.ids.campos_modalidad, campos_dict)
-
+        for clave, mod in self.modalidades.items():
+            if mod["nombre"] == value:
+                self.modalidad = mod["modalidad"]
+                for clave, valor in mod.items():
+                    self.cfg[clave] = valor
+                self.actualizar_campos()
+                break
+        
+    
+    def actualizar_campos(self):
+        visibles = MODALIDADES_VISIBLES[self.modalidad]
+        self.cargar_campos(self.ids.campos_modalidad, visibles)
+        comunes = CONCURSO_TODOS
+        self.cargar_campos(self.ids.campos_comunes,comunes)
+      
     def cargar_campos(self, layout, campos_dict):
         layout.clear_widgets()
+        layout.add_widget(Widget(size_hint_y=1))
+        self.inputs = {}
         for campo, label in campos_dict.items():
-            fila = BoxLayout(orientation="horizontal", size_hint_y=None, height=40, spacing=10)
-            fila.add_widget(Label(text=label, halign="right", valign="middle"))
-            fila.add_widget(NumberInput(text=str(self.state.get(campo, 0))))
-            layout.add_widget(fila)
+            fila = BoxLayout(size_hint_y= None, height= 40)
+            fila.add_widget(Widget(size_hint_x=1))
+            columnas=BoxLayout(size_hint_x=None, width=250)
+            # Columna 1: Label alineado a la derecha
+            lbl = Label(text=label, halign="right", valign="middle")
+            # Columna 2: IntInput alineado a la izquierda
+            inp = IntInput(text=str(self.cfg[campo]), size_hint_x=None, width=40)
+            self.inputs[campo] = inp
+            columnas.add_widget(lbl)
+            columnas.add_widget(inp)
+            fila.add_widget(columnas)
+            fila.add_widget(Widget(size_hint_x=1))
 
+            layout.add_widget(fila)
+            layout.add_widget(Widget(size_hint_x=1))
+        layout.add_widget(Widget(size_hint_y=1))
+
+    def crono_start(self):
+        for campo, widget in self.inputs.items():
+            self.cfg[campo] = int(widget.text)
+        self.state.update(self.cfg)
+        self.state.start()
+ 
+        
 class PanelControlApp(App):
     def __init__(self, state, crono, **kwargs):
         super().__init__(**kwargs)
@@ -52,4 +83,23 @@ class PanelControlApp(App):
     def build(self):
         Window.size = (680, 480)
         return PanelControl(self.state, self.crono)
+
+class IntInput(TextInput):
+    def insert_text(self, substring, from_undo=False):
+        # Acepta solo dígitos
+        s = ''.join(c for c in substring if c.isdigit())
+        if not s:
+            return
+
+        new = self.text + s
+
+        # Valida que el número resultante sea >= 0
+        try:
+            if int(new) < 0:
+                return
+        except:
+            return
+
+        super().insert_text(s, from_undo)
+        
 
