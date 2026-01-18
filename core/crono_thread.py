@@ -56,7 +56,8 @@ class CronoThread(threading.Thread):
             self._load_parameters_from_state()
 
             cuenta_vuelos = self.num_vuelos
-
+            vuelo_actual = 1
+            
             while self.state.cronoenmarcha and not self._stop_flag:
 
                 # --- PREPARACIÓN ---
@@ -97,6 +98,7 @@ class CronoThread(threading.Thread):
                 if self.state.cronoenmarcha:
                     self.repetido = True
                     cuenta_vuelos -= 1
+                    vuelo_actual +=1
 
                     if cuenta_vuelos <= 0:
                         self.grupo += 1
@@ -107,9 +109,10 @@ class CronoThread(threading.Thread):
                             self.manga += 1
 
                         cuenta_vuelos = self.num_vuelos
+                        vuelo_actual = 1
 
                 # Actualizar estado dinámico
-                self.state.set_manga_grupo_vuelo(self.manga, self.grupo, self.vuelo_actual)
+                self.state.set_manga_grupo_vuelo(self.manga, self.grupo, vuelo_actual)
 
 
     # ---------------------------------------------------------
