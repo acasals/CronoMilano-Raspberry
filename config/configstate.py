@@ -2,14 +2,23 @@ import threading
 
 class ConfigState:
     def __init__(self, config_dict):
+        self.cfg = config_dict
         self._lock = threading.Lock()
         self._apply_dict(config_dict)
+        self._callbacks = []
+
 
         # Estado dinámico del concurso
         self.cronoenmarcha = False
         self.fase = "Detenido"          # Fase inicial
         self.tiempo_restante = 0
 
+    # ---------------------------------------------------------
+    # MÉTODO PÚBLICO: añade a lista de callbacks
+    # ---------------------------------------------------------
+    def add_callback(self, fn):
+        self._callbacks.append(fn)
+        
     # ---------------------------------------------------------
     # MÉTODO INTERNO: aplica un diccionario completo
     # ---------------------------------------------------------
@@ -45,6 +54,13 @@ class ConfigState:
         self.brillo_digitos = 50
 
     # ---------------------------------------------------------
+    # MÉTODO INTERNO: emite el estado
+    # ---------------------------------------------------------
+    def _emit(self):
+        for fn in self._callbacks:
+            fn(self.get_dict())
+
+    # ---------------------------------------------------------
     # MÉTODO PÚBLICO: update completo
     # ---------------------------------------------------------
     def update(self, config_dict):
@@ -54,29 +70,25 @@ class ConfigState:
         """
         with self._lock:
             self._apply_dict(config_dict)
+        self._emit()
 
     # ---------------------------------------------------------
     # CONTROL DEL CRONO
     # ---------------------------------------------------------
     def start(self):
-        """
-        La GUI/Flask solo ponen el sistema en marcha.
-        La fase real la controla el CronoThread.
-        """
         with self._lock:
             self.cronoenmarcha = True
             self.fase = "Preparación"   # Primera fase real del concurso
             self.manga = self.empezar_manga
             self.grupo = self.empezar_grupo
             self.vuelo_actual = 1
+        self._emit()
 
     def stop(self):
-        """
-        STOP siempre devuelve a 'Detenido'.
-        """
         with self._lock:
             self.cronoenmarcha = False
             self.fase = "Detenido"
+        self._emit()
 
     # ---------------------------------------------------------
     # CONTROL DE FASES (solo para CronoThread)
@@ -93,6 +105,7 @@ class ConfigState:
         """
         with self._lock:
             self.fase = fase
+        self._emit()
 
     # ---------------------------------------------------------
     # ESTADO DINÁMICO
@@ -100,12 +113,14 @@ class ConfigState:
     def set_tiempo(self, t):
         with self._lock:
             self.tiempo_restante = int(t)
+        self._emit()
 
     def set_manga_grupo_vuelo(self, manga, grupo, vuelo):
         with self._lock:
             self.manga = manga
             self.grupo = grupo
             self.vuelo_actual = vuelo
+        self._emit()
 
     # ---------------------------------------------------------
     # FLAGS DE ACORTAR / ALARGAR
