@@ -183,3 +183,8 @@ CONCURSO_TODOS = {
     "empezar_manga": "Empezar por manga",
     "empezar_grupo": "Empezar por grupo"
 }
+
+MOSTRAR_NUM_VUELOS = {
+    "F3K_ALL_UP",
+    "F5K_ALL_UP"
+}
