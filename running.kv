@@ -1,0 +1,142 @@
+#:set SPACING 10
+#:set PADDING 10
+#:set BTN_DANGER (0.8, 0.2, 0.2, 1)
+#:set BG_LIGHT (0.95, 0.95, 0.95, 1)
+#:set BTN_CAUTION (1, 0.65, 0, 1)
+#:set BTN_INFO (0, 0.8, 1, 1)
+
+<RunningScreen>:
+    boton_acortar: boton_acortar
+    boton_alargar: boton_alargar
+
+    BoxLayout:
+        orientation: "vertical"
+        padding: PADDING
+        spacing: SPACING
+
+        BoxLayout:
+            orientation: "horizontal"
+
+            BoxLayout:
+                padding: PADDING
+                size_hint_x: 0.65
+
+                Label:
+                    id: lbl_crono
+                    text: "00:00"
+                    font_size: 160
+                    bold: True
+                    halign: "center"
+                    valign: "middle"
+                    text_size: self.size
+                
+            
+            # Información adicional 
+            BoxLayout:
+                size_hint_x: 0.35
+
+                BoxLayout:
+                    orientation: "vertical"
+                    spacing: SPACING
+
+                    Widget:
+                        size_hint_y: 1
+
+                    Label:
+                        id: lbl_fase
+                        text: ""
+                        font_size: 28
+                        halign: "center"
+                        valign: "middle"
+                        text_size: self.size
+
+                    Label:
+                        id: lbl_manga
+                        text: ""
+                        font_size: 22
+                        halign: "center"
+                        valign: "middle"
+                        text_size: self.size
+
+                    Label:
+                        id: lbl_grupo
+                        text: ""
+                        font_size: 22
+                        halign: "center"
+                        valign: "middle"
+                        text_size: self.size
+
+                    Label:
+                        id: lbl_vuelo
+                        text: ""
+                        font_size: 22
+                        halign: "center"
+                        valign: "middle"
+                        text_size: self.size
+
+                    Widget:
+                        size_hint_y: 1
+                
+
+        
+        BoxLayout:
+            orientation: "horizontal"
+            size_hint_y: None
+            height: 70
+
+            # Botones Acortar y Alargar
+            BoxLayout:    
+                orientation: "vertical"
+                Widget:
+                    size_hint_x: 1   
+                BoxLayout:
+                    orientation: "horizontal"
+                    spacing: 30
+                    size_hint_y: None
+                    height: 50
+                
+                    Widget:
+                        size_hint_x: 1           
+                    Button:
+                        text: "ACORTAR"
+                        id: boton_acortar
+                        size_hint_x: None
+                        width: 150
+                        background_normal: ""
+                        background_color: BTN_CAUTION
+                        color: 1,1,1,1
+                        font_size: 22
+                        on_release: root.crono_acortar()
+
+                    Button:
+                        text: "ALARGAR"
+                        size_hint_x: None
+                        id: boton_alargar
+                        width: 150
+                        background_normal: ""
+                        background_color: BTN_INFO
+                        color: 1,1,1,1
+                        font_size: 22
+                        on_release: root.crono_alargar()
+                    Widget:
+                        size_hint_x: 1
+                Widget:
+                    size_hint_x: 1   
+            
+            # Botón STOP
+            BoxLayout:
+                orientation: "horizontal"
+                
+                Widget:
+                    size_hint_x: 1
+                Button:
+                    text: "STOP"
+                    size_hint_x: None
+                    width: 200
+                    background_normal: ""
+                    background_color: BTN_DANGER
+                    color: 1,1,1,1
+                    font_size: 26
+                    on_release: root.crono_stop()
+                Widget:
+                    size_hint_x: 1
