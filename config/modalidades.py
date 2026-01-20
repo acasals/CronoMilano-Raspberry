@@ -188,3 +188,4 @@ MOSTRAR_NUM_VUELOS = {
     "F3K_ALL_UP",
     "F5K_ALL_UP"
 }
+

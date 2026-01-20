@@ -12,7 +12,7 @@ class ConfigState:
         self.cronoenmarcha = False
         self.fase = "Detenido"          # Fase inicial
         self.tiempo_restante = 0
-
+        
     # ---------------------------------------------------------
     # MÉTODO PÚBLICO: añade a lista de callbacks
     # ---------------------------------------------------------
@@ -49,9 +49,9 @@ class ConfigState:
         self.alargar = d.get("alargar")
         
         # Ajustes
-        self.brillo_display = 50
-        self.volumen = 50
-        self.brillo_digitos = 50
+        self.brillo_display = d.get("brillo_display")
+        self.volumen = d.get("volumen")
+        self.brillo_digitos = d.get("brillo_digitos")
 
     # ---------------------------------------------------------
     # MÉTODO INTERNO: emite el estado
@@ -122,6 +122,12 @@ class ConfigState:
             self.vuelo_actual = vuelo
         self._emit()
 
+    def set_brillo_volumen_digitos(self, brillo_display, volumen, brillo_digitos):
+        with self._lock:
+            self.brillo_display = brillo_display
+            self.volumen = volumen
+            self.brillo_digitos = brillo_digitos
+       
     # ---------------------------------------------------------
     # FLAGS DE ACORTAR / ALARGAR
     # ---------------------------------------------------------
