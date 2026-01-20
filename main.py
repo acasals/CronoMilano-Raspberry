@@ -6,6 +6,7 @@ from kivy.lang import Builder
 
 from panelcontrol import PanelControl
 from running import RunningScreen
+from ajustes import AjustesScreen
 
 from config.load_config import load_config_inicial
 from config.configstate import ConfigState
@@ -27,6 +28,7 @@ class MainApp(App):
         # Cargar pantallas antes del ScreenManager
         Builder.load_file("panelcontrol.kv")
         Builder.load_file("running.kv")
+        Builder.load_file("ajustes.kv")
         # El ScreenManager se define en main.kv
         #root = RootManager()
         root = Builder.load_file("main.kv")
@@ -34,7 +36,7 @@ class MainApp(App):
         # Pasar state y crono a las pantallas
         root.get_screen("panelcontrol").init_backend(self.state, self.crono)
         root.get_screen("running").init_backend(self.state, self.crono)
-
+        root.get_screen("ajustes").init_backend(self.state, self.crono)
         return root
 
 
