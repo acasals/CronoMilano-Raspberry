@@ -1,0 +1,90 @@
+#:set SPACING 10
+#:set PADDING 10
+#:set BTN_SECONDARY (0.5, 0.5, 0.5, 1)
+
+<MiSlider@Slider>:
+    size_hint_y: None
+    height: 300
+    orientation: "vertical"
+    value_track: True
+    value_track_width: 5
+    step: 1
+    slider_name: ""
+
+
+<MiLabel@Label>:
+    font_size: 24
+    halign: "center"
+    valign: "middle"
+    text_size: self.size
+    
+
+<AjustesScreen>:
+    slider_brillo_display: slider_brillo_display
+    slider_volumen: slider_volumen
+    slider_brillo_digitos: slider_brillo_digitos
+
+    BoxLayout:
+        orientation: "horizontal"
+        padding: PADDING
+        spacing: SPACING
+
+        BoxLayout:
+            orientation: "vertical"
+            size_hint_x: 1
+
+            Widget:
+                size_hint_y: 0.1
+            MiLabel:
+                text: "Brillo del display"
+            MiSlider:
+                id: slider_brillo_display
+                slider_name: "slider_brillo_display"
+
+            Widget:
+                size_hint_y: 0.1
+
+        BoxLayout:
+            orientation: "vertical"
+            size_hint_x: 1
+
+            Widget:
+                size_hint_y: 0.1
+            MiLabel:
+                text: "Volumen"
+            MiSlider:
+                id: slider_volumen
+                slider_name: "slider_volumen"
+            Widget:
+                size_hint_y: 0.1
+
+        BoxLayout:
+            orientation: "vertical"
+            size_hint_x: 1
+
+            Widget:
+                size_hint_y: 0.1
+            MiLabel:
+                text: "Brillo de los dígitos"
+            MiSlider:
+                id: slider_brillo_digitos
+                slider_name: "slider_brillo_digitos"
+            Widget:
+                size_hint_y: 0.1
+
+        BoxLayout:
+            orientation: "vertical"
+            size_hint_x: None
+            width:170
+
+            Widget:
+                size_hint_y: 1
+            BtnSecondary:
+                text: "Volver"
+                size_hint_x: None
+                size_hint_y: None
+                height: 50
+                width: 150
+                on_release: root.volver()
+            Widget:
+                size_hint_y: 1
