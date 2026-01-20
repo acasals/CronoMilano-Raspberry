@@ -13,6 +13,11 @@ def load_config_inicial():
     base["grupo"] = 1
     base["vuelo_actual"] = 1
     base["acortar"] = False
-    base["alargar"]= False
+    base["alargar"] = False
+    # TODO cargar de fichero
+    base["brillo_display"] = 50
+    base["volumen"] = 50
+    base["brillo_digitos"] = 50
+    
     
     return base
