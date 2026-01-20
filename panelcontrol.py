@@ -91,6 +91,9 @@ class PanelControl(Screen):
         self.state.update(self.cfg)
         self.state.start()
  
+    def ir_a_ajustes(self):
+        self.manager.transition.direction = 'right'
+        self.manager.current = 'ajustes'
         
 class IntInput(TextInput):
     def insert_text(self, substring, from_undo=False):
