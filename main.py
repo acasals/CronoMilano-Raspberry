@@ -14,9 +14,12 @@ from core.crono_thread import CronoThread
 from web.server import run_web_server
 from config.modalidades import MODALIDADES
 
+from kivy.factory import Factory
+from coloroverlay import ColorOverlay
+Factory.register('ColorOverlay', cls=ColorOverlay)
+
 class RootManager(ScreenManager):
     pass
-
 
 class MainApp(App):
     def __init__(self, state, crono, **kwargs):
@@ -25,25 +28,37 @@ class MainApp(App):
         self.crono = crono
 
     def build(self):
-        # Cargar pantallas antes del ScreenManager
         Builder.load_file("panelcontrol.kv")
         Builder.load_file("running.kv")
         Builder.load_file("ajustes.kv")
-        # El ScreenManager se define en main.kv
-        #root = RootManager()
+        
         root = Builder.load_file("main.kv")
 
-        # Pasar state y crono a las pantallas
-        root.get_screen("panelcontrol").init_backend(self.state, self.crono)
-        root.get_screen("running").init_backend(self.state, self.crono)
-        root.get_screen("ajustes").init_backend(self.state, self.crono)
+        sm = root.ids.root_manager
+        sm.get_screen("panelcontrol").init_backend(self.state, self.crono)
+        sm.get_screen("running").init_backend(self.state, self.crono)
+        sm.get_screen("ajustes").init_backend(self.state, self.crono)
+                 
         return root
+    
+    def on_start(self):
+        from kivy.app import App
 
+        def set_kivy_brightness(value):
+            overlay = self.root.ids.brightness_overlay
+            opacity = 1 - (value / 255.0)
+            overlay.opacity = opacity
 
+        # Asignar callback
+        self.state.on_brillo_display_change = set_kivy_brightness
+
+        # Aplicar brillo inicial
+        set_kivy_brightness(self.state.brillo_display)
+    
 def main():
     config = load_config_inicial()
     state = ConfigState(config)
-
+    
     # --- AUDIO SOLO PARA EL CRONÓMETRO ---
     import os
     os.environ["SDL_AUDIODRIVER"] = "alsa"
@@ -66,7 +81,7 @@ def main():
     crono.daemon = True
     crono.start()
 
-    # --- HILO SECUNDARIO: SERVIDOR WEB ---
+    # # --- HILO SECUNDARIO: SERVIDOR WEB ---
     web_thread = threading.Thread(
         target=run_web_server,
         args=(state,crono),
@@ -76,8 +91,7 @@ def main():
 
     # --- GUI ---
     MainApp(state,crono).run()
-
-
+   
 if __name__ == "__main__":
     main()
 

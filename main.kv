@@ -1,9 +1,20 @@
 #:kivy 2.3.0
 
-RootManager:
-    PanelControl:
-        name: "panelcontrol"
-    RunningScreen:
-        name: "running"
-    AjustesScreen:
-        name: "ajustes"
+FloatLayout:
+
+    RootManager:
+        id: root_manager
+
+        PanelControl:
+            name: "panelcontrol"
+
+        RunningScreen:
+            name: "running"
+
+        AjustesScreen:
+            name: "ajustes"
+
+    # Overlay global para simular brillo
+    ColorOverlay:
+        id: brightness_overlay
+        opacity: 0
