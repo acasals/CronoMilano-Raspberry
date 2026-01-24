@@ -12,9 +12,17 @@ class AudioManager:
         self.queue = queue.Queue()
         self.sounds = {}
         self.thread = threading.Thread(target=self._audio_loop, daemon=True)
-
+         # Canal único para reproducción secuencial
+        self.channel = pygame.mixer.Channel(0)
+        self.volume = 0.5
+        self.channel.set_volume(self.volume/100)
+        
     def start(self):
         self.thread.start()
+        
+    def set_volume(self, v):
+        self.volume = max(0.0, min(100.0, v))
+        self.channel.set_volume(self.volume/100)
 
     def load_all(self):
         """Carga todos los .wav del directorio en memoria."""
@@ -35,9 +43,6 @@ class AudioManager:
     def _audio_loop(self):
         print("[AudioManager] Hilo de audio listo")
 
-        # Canal único para reproducción secuencial
-        channel = pygame.mixer.Channel(0)
-
         while True:
             name = self.queue.get()
             sound = self.sounds.get(name)
@@ -47,9 +52,9 @@ class AudioManager:
                 continue
 
             print(f"[AudioManager] Reproduciendo: {name}")
-            channel.play(sound)
+            self.channel.play(sound)
 
             # Esperar a que termine ANTES de pasar al siguiente
-            while channel.get_busy():
+            while self.channel.get_busy():
                 time.sleep(0.01)
 

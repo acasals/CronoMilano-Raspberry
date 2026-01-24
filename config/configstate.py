@@ -6,7 +6,7 @@ class ConfigState:
         self._lock = threading.Lock()
         self._apply_dict(config_dict)
         self._callbacks = []
-
+        self.on_volume_change = None
 
         # Estado dinámico del concurso
         self.cronoenmarcha = False
@@ -127,7 +127,9 @@ class ConfigState:
             self.brillo_display = brillo_display
             self.volumen = volumen
             self.brillo_digitos = brillo_digitos
-       
+        if self.on_volume_change:
+           self.on_volume_change(volumen)
+
     # ---------------------------------------------------------
     # FLAGS DE ACORTAR / ALARGAR
     # ---------------------------------------------------------

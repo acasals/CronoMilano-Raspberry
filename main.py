@@ -47,8 +47,8 @@ def main():
     # --- AUDIO SOLO PARA EL CRONÓMETRO ---
     import os
     os.environ["SDL_AUDIODRIVER"] = "alsa"
-    os.environ["AUDIODEV"] = "hw:1,0"
-    
+    os.environ["AUDIODEV"] = "hw:Pro,0"
+     
     import pygame
     pygame.mixer.pre_init(44100, -16, 2, 512)
     pygame.init()
@@ -58,6 +58,8 @@ def main():
     audio = AudioManager()
     audio.start()
     audio.load_all()
+    audio.set_volume(state.volumen)
+    state.on_volume_change = lambda v: audio.set_volume(v)
     
     # --- HILO CRÍTICO: CRONÓMETRO ---
     crono = CronoThread(state, audio)
