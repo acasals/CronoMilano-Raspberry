@@ -129,6 +129,8 @@ class ConfigState:
             self.brillo_digitos = brillo_digitos
         if self.on_volume_change:
            self.on_volume_change(volumen)
+        if self.on_brillo_display_change:
+            self.on_brillo_display_change(brillo_display)
 
     # ---------------------------------------------------------
     # FLAGS DE ACORTAR / ALARGAR
