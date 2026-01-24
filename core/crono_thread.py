@@ -2,10 +2,11 @@ import threading
 import time
 
 class CronoThread(threading.Thread):
-    def __init__(self, state):
+    def __init__(self, state, audio):
         super().__init__()
         self.daemon = False
         self.state = state
+        self.audio = audio
         self._stop_flag = False
 
         # Lock interno solo para variables del hilo
@@ -46,6 +47,7 @@ class CronoThread(threading.Thread):
     # HILO PRINCIPAL
     # ---------------------------------------------------------
     def run(self):
+                           
         while not self._stop_flag:
             time.sleep(0.01)
 
@@ -65,7 +67,7 @@ class CronoThread(threading.Thread):
                 if prep > 0 and not self._stop_flag:
                     self.state.set_fase("Preparación")
                     self.say_preparados()
-                    self.countdown(prep * 60, audio=True, lanzamiento=True,
+                    self.countdown(prep * 60, locucion=True, lanzamiento=True,
                                    acortable=True, alargable=True)
 
                 # --- VUELO ---
@@ -73,7 +75,7 @@ class CronoThread(threading.Thread):
                     self.state.set_fase("Vuelo")
                     self.bocina()
                     if self.vuelo > 0 and not self._stop_flag:
-                        self.countdown(self.vuelo * 60, audio=True, lanzamiento=False,
+                        self.countdown(self.vuelo * 60, locucion=True, lanzamiento=False,
                                     acortable=True, alargable=False)
 
                 # --- ATERRIZAJE ---
@@ -81,7 +83,7 @@ class CronoThread(threading.Thread):
                     self.state.set_fase("Aterrizaje")
                     self.bocina()
                     if self.aterrizaje > 0:
-                        self.countdown(self.aterrizaje, audio=False, lanzamiento=False,
+                        self.countdown(self.aterrizaje, locucion=False, lanzamiento=False,
                                     acortable=False, alargable=False)
 
                 # --- ESPERA ---
@@ -89,7 +91,7 @@ class CronoThread(threading.Thread):
                     self.state.set_fase("Espera")
                     self.final()
                     if self.espera > 0:
-                        self.countdown(self.espera * 60, audio=False, lanzamiento=False,
+                        self.countdown(self.espera * 60, locucion=False, lanzamiento=False,
                                     acortable=True, alargable=True)
                     else:
                         time.sleep(3)
@@ -118,7 +120,7 @@ class CronoThread(threading.Thread):
     # ---------------------------------------------------------
     # COUNTDOWN
     # ---------------------------------------------------------
-    def countdown(self, tiempo, audio, lanzamiento, acortable, alargable):
+    def countdown(self, tiempo, locucion, lanzamiento, acortable, alargable):
 
         time_end = time.monotonic() + tiempo
         remtime = tiempo
@@ -145,12 +147,20 @@ class CronoThread(threading.Thread):
                 time_end += 60
 
             if rm < remtime:
-                self.show_time(rm, audio, lanzamiento)
+                self.show_time(rm, locucion, lanzamiento)
                 self.state.set_tiempo(rm)
 
             remtime = rm
             time.sleep(0.01)
 
+    def show_time(self,tiempo,locucion,lanzamiento):
+            tiempo = int(tiempo)
+            minutos=tiempo//60
+            segundos=tiempo % 60
+            if locucion:
+                self.say_tiempo(minutos, segundos, lanzamiento)
+            print(minutos,segundos)
+            
     # ---------------------------------------------------------
     # PARADA LIMPIA
     # ---------------------------------------------------------
@@ -158,17 +168,56 @@ class CronoThread(threading.Thread):
         self._stop_flag = True
         self.state.stop()
         
+    # ---------------------------------------------------------
+    # AUDIO
+    # ---------------------------------------------------------
     def say_preparados(self):
-        print("Preparados")
+        self.audio.play("preparados")
+        #display7x4.scroll('preparados pilotos',300)
+        if self.manga<=20:
+            self.audio.play("manga")
+            self.audio.play(str(self.manga))
+        if self.grupo<= 20:
+            self.audio.play("grupo")
+            self.audio.play(str(self.grupo))
+        #display7x4.scroll('round ' + str(self.manga)+ '  group ' + str(self.grupo),500)
         
     def bocina(self):
-        print("Bocina")
+        self.audio.play("bocina")
         
     def final(self):
-        print("Final")
+        self.audio.play("final")
         
-    def show_time(self,tiempo,audio,lanzamiento):
-        tiempo = int(tiempo)
-        minutos=tiempo//60
-        segundos=tiempo % 60
-        print(minutos,segundos)
+    def say_tiempo(self,minutos, segundos, lanzamiento = False):
+        if segundos == 0:
+            if minutos == 10:
+                self.audio.play("10minutos")
+            if minutos == 8:
+                self.audio.play("8minutos")
+            if minutos == 5:
+                self.audio.play("5minutos")
+            if minutos == 4:
+                self.audio.play("4minutos")
+            if minutos == 3:
+                self.audio.play("3minutos")
+            if minutos == 2:
+                self.audio.play("2minutos")
+            if minutos == 1:
+                self.audio.play("1minuto")
+                
+        if minutos == 0:
+            if segundos==50:
+                self.audio.play("50segundos")
+            if segundos==40:
+                self.audio.play("40segundos")
+            if segundos==30:
+                if lanzamiento:
+                    self.audio.play("30seglanz")
+                else:
+                    self.audio.play("30segundos")
+            if segundos==20:
+                self.audio.play("20segundos")
+            if segundos<=10:
+                self.audio.play(str(segundos))
+        
+    
