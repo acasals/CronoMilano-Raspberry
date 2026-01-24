@@ -1,5 +1,5 @@
 from config.modalidades import MODALIDADES
-
+from config.settings import Settings
 
 def load_config_inicial():
     base = MODALIDADES["F5J_10"].copy()
@@ -14,10 +14,10 @@ def load_config_inicial():
     base["vuelo_actual"] = 1
     base["acortar"] = False
     base["alargar"] = False
-    # TODO cargar de fichero
-    base["brillo_display"] = 50
-    base["volumen"] = 50
-    base["brillo_digitos"] = 50
-    
+        
+    settings = Settings()
+    base["brillo_display"] = settings.get("brillo_display")
+    base["volumen"] = settings.get("volumen")
+    base["brillo_digitos"] = settings.get("brillo_digitos")
     
     return base

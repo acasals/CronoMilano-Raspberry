@@ -1,5 +1,6 @@
 from kivy.uix.screenmanager import Screen
 from kivy.clock import Clock
+from config.settings import Settings
 
 class AjustesScreen(Screen):
 
@@ -11,11 +12,14 @@ class AjustesScreen(Screen):
         
         # Cargar campos iniciales
         self.cfg = self.state.get_dict()
-        
+        self.brillo_display = self.cfg["brillo_display"]
+        self.volumen = self.cfg["volumen"]
+        self.brillo_digitos = self.cfg["brillo_digitos"]
+                
         # Sliders: cargar valores
-        self.ids.slider_brillo_display.value = self.cfg["brillo_display"]
-        self.ids.slider_volumen.value = self.cfg["volumen"]
-        self.ids.slider_brillo_digitos.value = self.cfg["brillo_digitos"]
+        self.ids.slider_brillo_display.value = self.brillo_display
+        self.ids.slider_volumen.value = self.volumen
+        self.ids.slider_brillo_digitos.value = self.brillo_digitos
         # Vincular eventos
         self.ids.slider_brillo_display.bind(value=self.on_slider_change)
         self.ids.slider_volumen.bind(value=self.on_slider_change)
@@ -29,18 +33,20 @@ class AjustesScreen(Screen):
             self.manager.current = "running"
           
     def on_slider_change(self, slider, value):
-        brillo_display = self.cfg["brillo_display"]
-        volumen = self.cfg["volumen"]
-        brillo_digitos = self.cfg["brillo_digitos"]
         match slider.slider_name:
             case "slider_brillo_display":
-                brillo_display = value
+                self.brillo_display = value
             case "slider_volumen":
-                volumen = value
+                self.volumen = value
             case "slider_brillo_digitos":
-                brillo_digitos = value
-        self.state.set_brillo_volumen_digitos(brillo_display, volumen, brillo_digitos)
+                self.brillo_digitos = value
+        self.state.set_brillo_volumen_digitos(self.brillo_display, self.volumen, self.brillo_digitos)
         
     def volver(self):
+        settings = Settings()
+        settings.set("brillo_display", self.brillo_display)
+        settings.set("volumen", self.volumen)
+        settings.set("brillo_digitos", self.brillo_digitos)
+        settings.save()
         self.manager.transition.direction = 'left'
         self.manager.current = 'panelcontrol'
