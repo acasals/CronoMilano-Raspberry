@@ -21,10 +21,13 @@ class AjustesScreen(Screen):
         self.ids.slider_volumen.value = self.volumen
         self.ids.slider_brillo_digitos.value = self.brillo_digitos
         # Vincular eventos
-        self.ids.slider_brillo_display.bind(value=self.on_slider_change)
-        self.ids.slider_volumen.bind(value=self.on_slider_change)
-        self.ids.slider_brillo_digitos.bind(value=self.on_slider_change)
-                
+        self.ids.slider_brillo_display.bind(value=self.on_slider_change,
+    on_touch_up=self.on_slider_release)
+        self.ids.slider_volumen.bind(value=self.on_slider_change,
+    on_touch_up=self.on_slider_release)
+        self.ids.slider_brillo_digitos.bind(value=self.on_slider_change,
+    on_touch_up=self.on_slider_release)
+        
     def on_state_update(self, new_state):
         Clock.schedule_once(lambda dt: self.update_gui(new_state))
         
@@ -40,8 +43,16 @@ class AjustesScreen(Screen):
                 self.volumen = value
             case "slider_brillo_digitos":
                 self.brillo_digitos = value
-        self.state.set_brillo_volumen_digitos(self.brillo_display, self.volumen, self.brillo_digitos)
-        
+       
+    def on_slider_release(self, slider, touch):
+    # Solo actuar si el touch pertenece al slider
+        if slider.collide_point(*touch.pos):
+            self.state.set_brillo_volumen_digitos(
+                self.brillo_display,
+                self.volumen,
+                self.brillo_digitos
+            )
+       
     def volver(self):
         settings = Settings()
         settings.set("brillo_display", self.brillo_display)
