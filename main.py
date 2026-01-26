@@ -3,6 +3,7 @@ import threading
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager
 from kivy.lang import Builder
+from kivy.clock import Clock
 
 from panelcontrol import PanelControl
 from running import RunningScreen
@@ -19,7 +20,42 @@ from coloroverlay import ColorOverlay
 Factory.register('ColorOverlay', cls=ColorOverlay)
 
 class RootManager(ScreenManager):
-    pass
+    def init_backend(self, state, crono):
+        self.state = state
+        self.crono = crono
+
+        # Registrar un único callback global
+        self.state.add_callback(self.on_state_update)
+
+    def on_state_update(self, new_state):
+        # Ejecutar en el hilo principal de Kivy
+        Clock.schedule_once(lambda dt: self.update_all_screens(new_state))
+
+    def update_all_screens(self, new_state):
+        """
+        Llama a update_gui(new_state) en cada pantalla que exista.
+        Cada pantalla decide qué hacer con el estado.
+        """
+        # Running
+        if "running" in self.screen_names:
+            screen = self.get_screen("running")
+            if hasattr(screen, "update_gui"):
+                screen.update_gui(new_state)
+
+        # Panel de control
+        if "panelcontrol" in self.screen_names:
+            screen = self.get_screen("panelcontrol")
+            if hasattr(screen, "update_gui"):
+                screen.update_gui(new_state)
+
+        # Ajustes
+        if "ajustes" in self.screen_names:
+            screen = self.get_screen("ajustes")
+            if hasattr(screen, "update_gui"):
+                screen.update_gui(new_state)
+
+
+
 
 class MainApp(App):
     def __init__(self, state, crono, **kwargs):
@@ -35,6 +71,8 @@ class MainApp(App):
         root = Builder.load_file("main.kv")
 
         sm = root.ids.root_manager
+        sm.init_backend(self.state, self.crono)
+
         sm.get_screen("panelcontrol").init_backend(self.state, self.crono)
         sm.get_screen("running").init_backend(self.state, self.crono)
         sm.get_screen("ajustes").init_backend(self.state, self.crono)
