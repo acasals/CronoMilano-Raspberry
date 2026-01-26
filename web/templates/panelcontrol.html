@@ -91,6 +91,19 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+   
+    const events = new EventSource("/events");
+
+    events.onmessage = (event) => {
+        const state = JSON.parse(event.data);
+
+        // Si el crono empieza → ir a running
+        if (state.cronoenmarcha && window.location.pathname !== "/running") {
+            window.location.href = "/running";
+            return;
+        }
+    };
+
     const visibles = JSON.parse(`{{ visibles|tojson|safe }}`);
     document.querySelectorAll("[id^='fila-']").forEach(fila => {
         const campo = fila.id.replace("fila-", "");
@@ -98,63 +111,48 @@ document.addEventListener("DOMContentLoaded", () => {
             fila.style.display = "none";
         }
     });
-});
-</script>
 
-<script>
-document.getElementById("modalidad").addEventListener("change", function() {
 
-    fetch("/ajax_modalidad", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({modalidad: this.value})
-    })
-    .then(r => r.json())
-    .then(data => {
+    document.getElementById("modalidad").addEventListener("change", function() {
 
-        // Convertimos visibles a JSON seguro para VS Code
-        const visibles = JSON.parse(JSON.stringify(data.visibles));
+        fetch("/ajax_modalidad", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({modalidad: this.value})
+        })
+        .then(r => r.json())
+        .then(data => {
 
-        // 1. Actualizar valores
-        for (const campo in data.valores) {
-            const input = document.querySelector(`input[name="${campo}"]`);
-            if (input) input.value = data.valores[campo];
-        }
+            // Convertimos visibles a JSON seguro para VS Code
+            const visibles = JSON.parse(JSON.stringify(data.visibles));
 
-        // 2. Mostrar los visibles y actualizar labels
-        for (const campo in visibles) {
-            const fila = document.getElementById(`fila-${campo}`);
-            const label = document.getElementById(`label-${campo}`);
-
-            if (fila) fila.style.display = "flex";
-            if (label) label.textContent = visibles[campo];
-        }
-
-        // 3. Ocultar los no visibles
-        document.querySelectorAll("[id^='fila-']").forEach(fila => {
-            const campo = fila.id.replace("fila-", "");
-            if (!(campo in visibles)) {
-                fila.style.display = "none";
+            // 1. Actualizar valores
+            for (const campo in data.valores) {
+                const input = document.querySelector(`input[name="${campo}"]`);
+                if (input) input.value = data.valores[campo];
             }
+
+            // 2. Mostrar los visibles y actualizar labels
+            for (const campo in visibles) {
+                const fila = document.getElementById(`fila-${campo}`);
+                const label = document.getElementById(`label-${campo}`);
+
+                if (fila) fila.style.display = "flex";
+                if (label) label.textContent = visibles[campo];
+            }
+
+            // 3. Ocultar los no visibles
+            document.querySelectorAll("[id^='fila-']").forEach(fila => {
+                const campo = fila.id.replace("fila-", "");
+                if (!(campo in visibles)) {
+                    fila.style.display = "none";
+                }
+            });
         });
     });
 });
+
 </script>
 
-<script>
-// ---------------------------------------------
-// Pasar a running si crono está activo
-// ---------------------------------------------
-const evtSource = new EventSource("/events");
-
-evtSource.onmessage = function(event) {
-    const data = JSON.parse(event.data);
-    
-    if (data.cronoenmarcha) {
-        window.location.href = "/running";
-    }
-
-};
-</script>
 
 {% endblock %}
