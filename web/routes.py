@@ -184,10 +184,4 @@ def register_routes(app, state,crono):
         state.set_brillo_volumen_digitos(brillo_display, volumen, brillo_digitos)
         return "OK"
     
-    # ---------------------------------------------------------
-    # APAGAR SISTEMA
-    # ---------------------------------------------------------
-    @app.post("/apagar")
-    def apagar():
-        system("sudo shutdown -h now")
-        return "Apagando..."
+    
