@@ -1,5 +1,4 @@
 from kivy.uix.screenmanager import Screen
-from kivy.clock import Clock
 from config.settings import Settings
 
 class AjustesScreen(Screen):
@@ -7,9 +6,7 @@ class AjustesScreen(Screen):
     def init_backend(self, state, crono):
         self.state = state
         self.crono = crono
-        # Registrar callback
-        self.state.add_callback(self.on_state_update)
-        
+               
         # Cargar campos iniciales
         self.cfg = self.state.get_dict()
         self.brillo_display = self.cfg["brillo_display"]
@@ -28,12 +25,14 @@ class AjustesScreen(Screen):
         self.ids.slider_brillo_digitos.bind(value=self.on_slider_change,
     on_touch_up=self.on_slider_release)
         
-    def on_state_update(self, new_state):
-        Clock.schedule_once(lambda dt: self.update_gui(new_state))
-        
     def update_gui(self, state):
         if state["cronoenmarcha"]:
             self.manager.current = "running"
+           
+        self.ids.slider_brillo_display = state["brillo_display"]
+        self.ids.slider_volumen.value = state["volumen"]
+        self.ids.slider_brillo_digitos.value = state["brillo_digitos"]
+
           
     def on_slider_change(self, slider, value):
         match slider.slider_name:
