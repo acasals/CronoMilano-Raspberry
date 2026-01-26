@@ -4,7 +4,6 @@ from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.core.window import Window
 from kivy.uix.widget import Widget
-from kivy.clock import Clock
 from kivy.uix.screenmanager import Screen
 
 from config.modalidades import MODALIDADES, MODALIDADES_VISIBLES, MODALIDADES_TODOS, CONCURSO_TODOS
@@ -22,8 +21,7 @@ class PanelControl(Screen):
     def init_backend(self, state, crono):
         self.state = state
         self.crono = crono
-        self.state.add_callback(self.on_state_update)
-
+        
         # --- AQUÍ van los valores iniciales ---
         self.modalidades = MODALIDADES
         self.modalidad = state.modalidad
@@ -39,13 +37,9 @@ class PanelControl(Screen):
         self.cfg = self.state.get_dict()
         self.actualizar_campos()
 
-    def on_state_update(self, new_state):
-        Clock.schedule_once(lambda dt: self.update_gui(new_state))
-
     def update_gui(self, state):
       if state["cronoenmarcha"]:
           self.manager.current = "running"
-
 
     def on_modalidad_change(self, spinner, value):
         for clave, mod in self.modalidades.items():
