@@ -1,5 +1,4 @@
 from kivy.uix.screenmanager import Screen
-from kivy.clock import Clock
 from config.modalidades import MOSTRAR_NUM_VUELOS, MODALIDADES
 from helpers import resolve_id_path, hide_by_path, show_by_path, formato_mmss
 
@@ -10,13 +9,7 @@ class RunningScreen(Screen):
         self.crono = crono
         self.mostrarAcortar = {"Preparación", "Vuelo", "Espera"}
         self.mostrarAlargar = {"Preparación", "Espera"}
-
-        # Registrar callback
-        self.state.add_callback(self.on_state_update)
         
-    def on_state_update(self, new_state):
-        Clock.schedule_once(lambda dt: self.update_gui(new_state))
-
     def update_gui(self, state):
         # Actualizar cronómetro
         if "tiempo_restante" in state:
@@ -49,8 +42,10 @@ class RunningScreen(Screen):
                     break
 
         # Cambiar de pantalla si se detiene
-        if not state.get("cronoenmarcha", False):
-            self.manager.current = "panelcontrol"
+        if self.manager.current == "running":
+            if not state.get("cronoenmarcha", False):
+                self.manager.current = "panelcontrol"
+
 
     def crono_stop(self):
         self.state.stop()
