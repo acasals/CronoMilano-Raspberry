@@ -1,4 +1,5 @@
 import time
+import sys
 import json
 from flask import Response, request, jsonify, render_template
 from os import system
@@ -21,7 +22,7 @@ def register_routes(app, state,crono):
         concurso_todos = CONCURSO_TODOS
         
         return render_template(
-            "index.html",
+            "panelcontrol.html",
             modalidades=MODALIDADES,
             modalidad=modalidad,
             estado=cfg,
@@ -55,7 +56,7 @@ def register_routes(app, state,crono):
         nombre = MODALIDADES[modalidad]["nombre"]
 
         # 2. Construir diccionario completo con valores editados
-        valores = {}
+        valores = state.get_dict()
 
         # Valores de la modalidad
         valores["modalidad"] = modalidad
@@ -100,7 +101,7 @@ def register_routes(app, state,crono):
                 modalidades_todos = modalidades_todos,
                 concurso_todos = concurso_todos,
                 visibles= visibles
-        )
+            )
         return render_template("running.html")
 
     # ---------------------------------------------------------
@@ -114,16 +115,23 @@ def register_routes(app, state,crono):
     @app.route("/events")
     def events():
         def stream():
+            last_sent = None
             while True:
-                estado = state.get_dict()
-                yield f"data: {json.dumps(estado)}\n\n"
-                time.sleep(0.2)  # envía un evento cada 200 milisegundos
+                current = state.get_dict()
+                # Solo enviar si hay cambios reales
+                if current != last_sent:
+                    yield f"data: {json.dumps(current)}\n\n"
+                    sys.stdout.flush()
+                    last_sent = current
+
+                time.sleep(0.3)
 
         return Response(
             stream(),
             mimetype="text/event-stream",
             headers={
                 "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
                 "X-Accel-Buffering": "no"
             }
         )
@@ -149,6 +157,33 @@ def register_routes(app, state,crono):
         state.stop()
         return "OK"
 
+    # ---------------------------------------------------------
+    # AJUSTES
+    # ---------------------------------------------------------
+    @app.route("/ajustes")
+    def ajustes():
+        cfg = state.get_dict()
+        if  cfg["cronoenmarcha"]:
+            return render_template("running.html")
+        
+        return render_template(
+                "ajustes.html",
+                volumen = cfg["volumen"],
+                brillo_digitos = cfg["brillo_digitos"]
+                )
+                
+    @app.post("/set_ajustes")
+    def set_ajustes():
+        cfg = state.get_dict()
+        data = request.json
+        brillo_display = cfg["brillo_display"]
+        volumen = data["volumen"]
+        print("volumen:", volumen)
+        brillo_digitos = data["brillo_digitos"]
+
+        state.set_brillo_volumen_digitos(brillo_display, volumen, brillo_digitos)
+        return "OK"
+    
     # ---------------------------------------------------------
     # APAGAR SISTEMA
     # ---------------------------------------------------------
