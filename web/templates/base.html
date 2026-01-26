@@ -7,13 +7,14 @@
 
     <!-- Bootstrap -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-<script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
 
     {% block head %}{% endblock %}
 </head>
 
 <body class="p-3">
     {% block body %}{% endblock %}
+    
     {% block scripts %}{% endblock %}
 </body>
 </html>

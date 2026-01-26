@@ -59,58 +59,66 @@ function formatoMMSS(segundos) {
     return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
-// ---------------------------------------------
-// Actualizar data del cronómetro
-// ---------------------------------------------
-const evtSource = new EventSource("/events");
-
-evtSource.onmessage = function(event) {
-    const data = JSON.parse(event.data);
+document.addEventListener("DOMContentLoaded", () => {
     
-    // Actualizar fase y tiempo
-    document.getElementById("fase").textContent = data.fase;
-    document.getElementById("manga").textContent = data.manga;
-    document.getElementById("grupo").textContent = data.grupo;
+    //conectar con SSE
+    const events = new EventSource("/events");
 
-    document.getElementById("tiempo").textContent = formatoMMSS(data.tiempo_restante);
+    events.onmessage = (event) => {
+        const state = JSON.parse(event.data);
 
-    // Mostrar/ocultar botones según fase
-    const acortar = document.getElementById("btn_acortar");
-    const alargar = document.getElementById("btn_alargar");
+        // Si el crono se detiene → volver al panel
+        if (!state.cronoenmarcha && window.location.pathname !== "/") {
+            window.location.href = "/";
+            return;
+        }
 
-    acortar.style.display =
-        ["Preparación", "Vuelo", "Espera"].includes(data.fase)
-        ? "inline-block"
-        : "none";
+        // Actualizar UI de running
+        if (typeof update_gui_running === "function") {
+            update_gui_running(state);
+        }
+    };
+    
+    // Actualizar data del cronómetro
+    function update_gui_running(state){
+        // Actualizar fase y tiempo
+        document.getElementById("fase").textContent = state.fase;
+        document.getElementById("manga").textContent = state.manga;
+        document.getElementById("grupo").textContent = state.grupo;
 
-    alargar.style.display =
-        ["Preparación", "Espera"].includes(data.fase)
-        ? "inline-block"
-        : "none";
+        document.getElementById("tiempo").textContent = formatoMMSS(state.tiempo_restante);
 
-    // Si el crono está detenido → volver a index
-    if (!data.cronoenmarcha) {
-        window.location.href = "/";
+        // Mostrar/ocultar botones según fase
+        const acortar = document.getElementById("btn_acortar");
+        const alargar = document.getElementById("btn_alargar");
+
+        acortar.style.display =
+            ["Preparación", "Vuelo", "Espera"].includes(state.fase)
+            ? "inline-block"
+            : "none";
+
+        alargar.style.display =
+            ["Preparación", "Espera"].includes(state.fase)
+            ? "inline-block"
+            : "none";
+
     }
 
-};
+    // Botones
+    document.getElementById("btn_acortar").onclick = () => {
+        fetch("/acortar", {method: "POST"});
+    };
 
+    document.getElementById("btn_alargar").onclick = () => {
+        fetch("/alargar", {method: "POST"});
+    };
 
-// ---------------------------------------------
-// Botones
-// ---------------------------------------------
-document.getElementById("btn_acortar").onclick = () => {
-    fetch("/acortar", {method: "POST"});
-};
+    document.getElementById("btn_stop").onclick = () => {
+        fetch("/stop", {method: "POST"})
+            .then(() => window.location.href = "/");
+    };
 
-document.getElementById("btn_alargar").onclick = () => {
-    fetch("/alargar", {method: "POST"});
-};
-
-document.getElementById("btn_stop").onclick = () => {
-    fetch("/stop", {method: "POST"})
-        .then(() => window.location.href = "/");
-};
+});
 </script>
 
 {% endblock %}
