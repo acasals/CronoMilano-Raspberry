@@ -7,6 +7,7 @@ class ConfigState:
         self._apply_dict(config_dict)
         self._callbacks = []
         self.on_volume_change = None
+        self.on_brillo_digitos_change = None
 
         # Estado dinámico del concurso
         self.cronoenmarcha = False
@@ -127,10 +128,14 @@ class ConfigState:
             self.brillo_display = brillo_display
             self.volumen = volumen
             self.brillo_digitos = brillo_digitos
+            
         if self.on_volume_change:
-           self.on_volume_change(volumen)
+            self.on_volume_change(volumen)
         if self.on_brillo_display_change:
             self.on_brillo_display_change(brillo_display)
+        if self.on_brillo_digitos_change:
+            self.on_brillo_digitos_change(brillo_digitos)
+        self._emit()
 
     # ---------------------------------------------------------
     # FLAGS DE ACORTAR / ALARGAR
