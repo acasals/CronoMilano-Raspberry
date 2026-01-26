@@ -1,25 +1,126 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Ajustes</title>
-</head>
-<body>
-    <h1>Ajustes</h1>
+{% extends "base.html" %}
 
-    <form method="POST">
-        <label>Intensidad de luz:</label>
-        <input type="range" name="luz" min="0" max="100">
+{% block title %}Panel de Control{% endblock %}
+{% block head %}
 
-        <label>Volumen:</label>
-        <input type="range" name="volumen" min="0" max="100">
+<style>
+    .slider-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 70vh;   /* Ajusta según tu diseño */
+    }
 
-        <label>Idioma:</label>
-        <select name="idioma">
-            <option value="es">Español</option>
-            <option value="en">Inglés</option>
-        </select>
+    .vertical-slider {
+        writing-mode: vertical-lr;          /* Dirección vertical real */
+        direction: rtl;
+        width: 30px;                  /* Grosor del slider */
+        height: 60vh;                 /* Altura adaptable a pantalla */
+        margin: 0 auto;
+    }
+</style>
 
-        <button type="submit">Volver</button>
-    </form>
-</body>
-</html>
+{% endblock %}
+
+{% block body %}
+
+
+
+<div class="container mt-3">
+
+        <!-- PRIMERA FILA: SLIDERS -->
+    <div class="container d-inline-block border p-3">
+        <div class="row my-4">
+            <div class="col-6 text-center">
+                <h4>Volumen</h4>
+            </div>  
+            <div class="col-6 text-center">
+                <h4>Brillo de los dígitos</h4>
+            </div>
+        </div>
+        <div class="row my-4">
+            <div class="col-6 text-center">
+                <div class="slider-container">
+                    <input type="range" class="vertical-slider" min="0" max="100" step="1" id="slider_volumen">
+                </div>
+            </div>
+            <div class="col-6 text-center">
+                <div class="slider-container">
+                    <input type="range" class="vertical-slider" min="0" max="255" step="1" id="slider_brillo_digitos" >
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEGUNDA FILA: botón VOLVER -->
+    <div class="row my-4">
+        <div class="col text-center">
+            <a href="/" class="btn btn-default btn-lg border" role="button">Volver</a>
+        </div>
+    </div>
+    
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    const sVolumen = document.getElementById("slider_volumen");
+    const sBrilloDigitos = document.getElementById("slider_brillo_digitos");
+
+    let brillo_display_actual = 255;
+
+    // Bloqueos independientes por slider
+    let bloqueado_volumen = false;
+    let bloqueado_digitos = false;
+
+    // Bloqueo por interacción
+     sVolumen.addEventListener("pointerdown", () => bloqueado_volumen = true);
+    sVolumen.addEventListener("pointerup", () => bloqueado_volumen = false);
+    sVolumen.addEventListener("touchend", () => bloqueado_volumen = false);
+    sVolumen.addEventListener("mouseup", () => bloqueado_volumen = false);
+
+    sBrilloDigitos.addEventListener("pointerdown", () => bloqueado_digitos = true);
+    sBrilloDigitos.addEventListener("pointerup", () => bloqueado_digitos = false);
+    sBrilloDigitos.addEventListener("touchend", () => bloqueado_digitos = false);
+    sBrilloDigitos.addEventListener("mouseup", () => bloqueado_digitos = false);
+    
+    //  ENVIAR CAMBIOS AL SERVIDOR
+    function enviarCambios() {
+        fetch("/set_ajustes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                brillo_display: brillo_display_actual,
+                volumen: Number(sVolumen.value),
+                brillo_digitos: Number(sBrilloDigitos.value)
+            })
+        });
+    }
+    sVolumen.addEventListener("change", enviarCambios);
+    sBrilloDigitos.addEventListener("change", enviarCambios);
+
+    // SSE
+    const events = new EventSource("/events");
+
+    events.onmessage = (event) => {
+        const state = JSON.parse(event.data);
+
+        brillo_display_actual = state.brillo_display;
+
+        // Actualizar solo si el usuario NO está tocando el slider
+        if (!bloqueado_volumen) {
+            sVolumen.value = state.volumen;
+        }
+
+        if (!bloqueado_digitos) {
+            sBrilloDigitos.value = state.brillo_digitos;
+        }
+    };
+
+
+
+});
+</script>
+{% endblock %}
