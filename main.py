@@ -99,8 +99,17 @@ def main():
     
     # --- AUDIO SOLO PARA EL CRONÓMETRO ---
     import os
-    os.environ["SDL_AUDIODRIVER"] = "alsa"
-    os.environ["AUDIODEV"] = "hw:Pro,0"
+    import sys
+
+    if sys.platform.startswith("linux"):
+        # Raspberry Pi
+        os.environ["SDL_AUDIODRIVER"] = "alsa"
+        os.environ["AUDIODEV"] = "hw:Pro,0"
+    else:
+        # Windows
+        os.environ["SDL_AUDIODRIVER"] = "directsound"
+        # En Windows no se usa AUDIODEV
+
      
     import pygame
     pygame.mixer.pre_init(44100, -16, 2, 512)
