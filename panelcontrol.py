@@ -7,6 +7,7 @@ from kivy.uix.widget import Widget
 from kivy.uix.screenmanager import Screen
 
 from config.modalidades import MODALIDADES, MODALIDADES_VISIBLES, MODALIDADES_TODOS, CONCURSO_TODOS
+from numeric_keyboard import NumericInput, KeyboardManager
 
 class PanelControl(Screen):
     def __init__(self, **kwargs):
@@ -18,6 +19,8 @@ class PanelControl(Screen):
         self.cfg = {}
         self.inputs = {}
         
+        self.keyboard_manager = KeyboardManager(self)
+
     def init_backend(self, state, crono):
         self.state = state
         self.crono = crono
@@ -56,27 +59,41 @@ class PanelControl(Screen):
         self.cargar_campos(self.ids.campos_modalidad, visibles)
         comunes = CONCURSO_TODOS
         self.cargar_campos(self.ids.campos_comunes,comunes)
-      
+        
+        self.keyboard_manager.rebind()
+
+
     def cargar_campos(self, layout, campos_dict):
         layout.clear_widgets()
         layout.add_widget(Widget(size_hint_y=1))
         self.inputs = {}
+        
         for campo, label in campos_dict.items():
             fila = BoxLayout(size_hint_y= None, height= 40)
             fila.add_widget(Widget(size_hint_x=1))
             columnas=BoxLayout(size_hint_x=None, width=250)
+            
             # Columna 1: Label alineado a la derecha
             lbl = Label(text=label, halign="right", valign="middle")
-            # Columna 2: IntInput alineado a la izquierda
-            inp = IntInput(text=str(self.cfg[campo]), size_hint_x=None, width=40)
+            
+            # Columna 2: NumericInput 
+            inp = NumericInput(
+                text=str(self.cfg[campo]),
+                size_hint_x=None,
+                width=60,
+                input_filter='int'
+            )
             self.inputs[campo] = inp
+            
             columnas.add_widget(lbl)
             columnas.add_widget(inp)
+            
             fila.add_widget(columnas)
             fila.add_widget(Widget(size_hint_x=1))
 
             layout.add_widget(fila)
             layout.add_widget(Widget(size_hint_x=1))
+            
         layout.add_widget(Widget(size_hint_y=1))
 
     def crono_start(self):
@@ -88,23 +105,5 @@ class PanelControl(Screen):
     def ir_a_ajustes(self):
         self.manager.transition.direction = 'right'
         self.manager.current = 'ajustes'
-        
-class IntInput(TextInput):
-    def insert_text(self, substring, from_undo=False):
-        # Acepta solo dígitos
-        s = ''.join(c for c in substring if c.isdigit())
-        if not s:
-            return
-
-        new = self.text + s
-
-        # Valida que el número resultante sea >= 0
-        try:
-            if int(new) < 0:
-                return
-        except:
-            return
-
-        super().insert_text(s, from_undo)
         
 
