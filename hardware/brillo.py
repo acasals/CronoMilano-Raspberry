@@ -8,33 +8,59 @@
 # brillo.set_brillo(state.brillo_display)
 
 import RPi.GPIO as GPIO
-import time
 
 PWM_PIN = 12
-PWM_FREQ = 1000  # 1 kHz → perfecto para brillo sin parpadeos
+PWM_FREQ = 1000  # Hz
 
 class BrilloController:
-    def __init__(self, pin = PWM_PIN, freq = PWM_FREQ):
+    def __init__(self, pin=PWM_PIN, freq=PWM_FREQ):
         self.pin = pin
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(pin, GPIO.OUT)
+        self.freq = freq
+        self.initialized = False
+        self.pwm = None
 
-        # PWM software (suficiente para brillo)
-        self.pwm = GPIO.PWM(pin, freq)
-        self.pwm.start(0)
+        try:
+            GPIO.setmode(GPIO.BCM)
+            GPIO.setup(self.pin, GPIO.OUT)
+
+            self.pwm = GPIO.PWM(self.pin, self.freq)
+            self.pwm.start(0)
+
+            self.initialized = True
+
+        except Exception as e:
+            print(f"[BrilloController] Error inicializando PWM: {e}")
+            self.initialized = False
 
     def set_brillo(self, value_0_255):
-        # Limitar rango
+        if not self.initialized:
+            return
+
         if value_0_255 < 0:
             value_0_255 = 0
         elif value_0_255 > 255:
             value_0_255 = 255
 
-        # Convertir a porcentaje 0–100
         duty = (value_0_255 / 255) * 100
-        self.pwm.ChangeDutyCycle(duty)
+
+        try:
+            self.pwm.ChangeDutyCycle(duty)
+        except Exception as e:
+            print(f"[BrilloController] Error cambiando duty: {e}")
 
     def apagar(self):
-        self.pwm.stop()
-        GPIO.cleanup()
+        if not self.initialized:
+            return
 
+        try:
+            if self.pwm:
+                self.pwm.stop()
+        except Exception:
+            pass
+
+        try:
+            GPIO.cleanup(self.pin)
+        except Exception:
+            pass
+
+        self.initialized = False
