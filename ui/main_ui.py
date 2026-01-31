@@ -1,1 +1,0 @@
-print("UI táctil aún no implementada")

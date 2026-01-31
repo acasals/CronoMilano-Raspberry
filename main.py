@@ -19,6 +19,8 @@ from kivy.factory import Factory
 from coloroverlay import ColorOverlay
 Factory.register('ColorOverlay', cls=ColorOverlay)
 
+from hardware.brillo import BrilloController
+        
 class RootManager(ScreenManager):
     def init_backend(self, state, crono):
         self.state = state
@@ -32,10 +34,9 @@ class RootManager(ScreenManager):
         Clock.schedule_once(lambda dt: self.update_all_screens(new_state))
 
     def update_all_screens(self, new_state):
-        """
-        Llama a update_gui(new_state) en cada pantalla que exista.
-        Cada pantalla decide qué hacer con el estado.
-        """
+        
+        # Llama a update_gui(new_state) en cada pantalla que exista.
+        
         # Running
         if "running" in self.screen_names:
             screen = self.get_screen("running")
@@ -80,8 +81,9 @@ class MainApp(App):
         return root
     
     def on_start(self):
+        
+        # --- BRILLO DE LA PANTALLA KIVY ---
         from kivy.app import App
-
         def set_kivy_brightness(value):
             overlay = self.root.ids.brightness_overlay
             opacity = 1 - (value / 255.0)
@@ -92,6 +94,26 @@ class MainApp(App):
 
         # Aplicar brillo inicial
         set_kivy_brightness(self.state.brillo_display)
+        
+        # --- BRILLO DE LOS DÍGITOS (PWM HARDWARE) ---
+        self.brillo_hw = BrilloController()
+        
+        def set_display_digitos_brightness(value):
+            # value es 0–255
+            self.brillo_hw.set_brillo(value)
+           
+        # Asignar callback
+        self.state.on_brillo_digitos_change = set_display_digitos_brightness
+        
+        # Aplicar brillo inicial
+        set_display_digitos_brightness(self.state.brillo_digitos)
+
+
+
+    def on_stop(self):
+        # Apagar PWM hardware
+        self.brillo_hw.apagar()
+
     
 def main():
     config = load_config_inicial()
@@ -99,17 +121,8 @@ def main():
     
     # --- AUDIO SOLO PARA EL CRONÓMETRO ---
     import os
-    import sys
-
-    if sys.platform.startswith("linux"):
-        # Raspberry Pi
-        os.environ["SDL_AUDIODRIVER"] = "alsa"
-        os.environ["AUDIODEV"] = "hw:Pro,0"
-    else:
-        # Windows
-        os.environ["SDL_AUDIODRIVER"] = "directsound"
-        # En Windows no se usa AUDIODEV
-
+    os.environ["SDL_AUDIODRIVER"] = "alsa"
+    os.environ["AUDIODEV"] = "hw:Pro,0"
      
     import pygame
     pygame.mixer.pre_init(44100, -16, 2, 512)
