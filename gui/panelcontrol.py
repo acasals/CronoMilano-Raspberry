@@ -7,7 +7,7 @@ from kivy.uix.widget import Widget
 from kivy.uix.screenmanager import Screen
 
 from config.modalidades import MODALIDADES, MODALIDADES_VISIBLES, MODALIDADES_TODOS, CONCURSO_TODOS
-from numeric_keyboard import NumericInput, KeyboardManager
+from gui.numeric_keyboard import NumericInput, KeyboardManager
 
 class PanelControl(Screen):
     def __init__(self, **kwargs):
