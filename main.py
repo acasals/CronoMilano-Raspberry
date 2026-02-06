@@ -5,9 +5,9 @@ from kivy.uix.screenmanager import ScreenManager
 from kivy.lang import Builder
 from kivy.clock import Clock
 
-from panelcontrol import PanelControl
-from running import RunningScreen
-from ajustes import AjustesScreen
+from gui.panelcontrol import PanelControl
+from gui.running import RunningScreen
+from gui.ajustes import AjustesScreen
 
 from config.load_config import load_config_inicial
 from config.configstate import ConfigState
@@ -16,10 +16,10 @@ from web.server import run_web_server
 from config.modalidades import MODALIDADES
 
 from kivy.factory import Factory
-from coloroverlay import ColorOverlay
+from gui.coloroverlay import ColorOverlay
 Factory.register('ColorOverlay', cls=ColorOverlay)
 
-from hardware.brillo import BrilloController
+from display.brillo import BrilloController
         
 class RootManager(ScreenManager):
     def init_backend(self, state, crono):
@@ -65,9 +65,9 @@ class MainApp(App):
         self.crono = crono
 
     def build(self):
-        Builder.load_file("panelcontrol.kv")
-        Builder.load_file("running.kv")
-        Builder.load_file("ajustes.kv")
+        Builder.load_file("gui/panelcontrol.kv")
+        Builder.load_file("gui/running.kv")
+        Builder.load_file("gui/ajustes.kv")
         
         root = Builder.load_file("main.kv")
 

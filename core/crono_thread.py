@@ -1,5 +1,6 @@
 import threading
 import time
+from display.gpio_display import DISPLAY7
 
 class CronoThread(threading.Thread):
     def __init__(self, state, audio):
@@ -23,6 +24,8 @@ class CronoThread(threading.Thread):
 
         self.repetido = False
 
+        self.display7 = DISPLAY7(dataPIN = 5, latchPIN = 13, clockPIN = 6)
+ 
     # ---------------------------------------------------------
     # Congelar parámetros al iniciar concurso
     # ---------------------------------------------------------
@@ -66,7 +69,7 @@ class CronoThread(threading.Thread):
                 prep = self.prep2 if self.repetido else self.prep1
                 if prep > 0 and not self._stop_flag:
                     self.state.set_fase("Preparación")
-                    self.say_preparados()
+                    self.show_and_say_preparados()
                     self.countdown(prep * 60, locucion=True, lanzamiento=True,
                                    acortable=True, alargable=True)
 
@@ -157,10 +160,12 @@ class CronoThread(threading.Thread):
             tiempo = int(tiempo)
             minutos=tiempo//60
             segundos=tiempo % 60
+            
+            self.display7.show(minutos,segundos)
+            
             if locucion:
                 self.say_tiempo(minutos, segundos, lanzamiento)
-            print(minutos,segundos)
-            
+                        
     # ---------------------------------------------------------
     # PARADA LIMPIA
     # ---------------------------------------------------------
@@ -171,16 +176,16 @@ class CronoThread(threading.Thread):
     # ---------------------------------------------------------
     # AUDIO
     # ---------------------------------------------------------
-    def say_preparados(self):
+    def show_and_say_preparados(self):
         self.audio.play("preparados")
-        #display7x4.scroll('preparados pilotos',300)
+        self.display7.scroll('preparados pilotos',300)
         if self.manga<=20:
             self.audio.play("manga")
             self.audio.play(str(self.manga))
         if self.grupo<= 20:
             self.audio.play("grupo")
             self.audio.play(str(self.grupo))
-        #display7x4.scroll('round ' + str(self.manga)+ '  group ' + str(self.grupo),500)
+        self.display7.scroll('round ' + str(self.manga)+ '  group ' + str(self.grupo),500)
         
     def bocina(self):
         self.audio.play("bocina")
