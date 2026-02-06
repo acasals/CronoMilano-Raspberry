@@ -2,6 +2,10 @@
     "version": "0.1",
     "autor": "Alex",
     "brillo_display": 246,
-    "volumen": 58.0,
-    "brillo_digitos": 255.0
+    "volumen": 48.0,
+    "brillo_digitos": 255.0,
+    "PWM_PIN": 12,
+    "DATA_PIN": 5,
+    "CLOCK_PIN": 6,
+    "LATCH_PIN": 13
 }
