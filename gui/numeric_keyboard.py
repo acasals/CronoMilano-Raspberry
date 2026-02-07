@@ -2,15 +2,15 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.popup import Popup
 from kivy.uix.button import Button
+from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.core.window import Window
 
 # ---------------------------------------------------------
-# 1) NumericInput: tu clase base para todos los campos
+# 1) NumericInput:  clase base para todos los campos
 # ---------------------------------------------------------
 class NumericInput(TextInput):
     pass
-
 
 # ---------------------------------------------------------
 # 2) Teclado numérico con OK y Cancelar
@@ -24,6 +24,9 @@ class NumericKeyboard(BoxLayout):
         self.spacing = 5
         self.padding = 5
        
+        teclado = BoxLayout(orientation='vertical', spacing=5)
+        self.add_widget(teclado)
+
         fila_altura = 60
         fila_altura_acciones = 80
 
@@ -34,13 +37,13 @@ class NumericKeyboard(BoxLayout):
             for n in row:
                 r.add_widget(Button(text=n, on_release=self.press))
             grid.add_widget(r)
-        self.add_widget(grid)
+        teclado.add_widget(grid)
 
         # --- Fila 0 y borrar ---
         bottom = BoxLayout(spacing=5, size_hint_y=None, height=fila_altura)
         bottom.add_widget(Button(text="0", on_release=self.press))
         bottom.add_widget(Button(text="⌫", on_release=self.backspace))
-        self.add_widget(bottom)
+        teclado.add_widget(bottom)
 
         # --- OK y Cancelar ---
         actions =  BoxLayout(spacing=5, size_hint_y=None, height=fila_altura_acciones)
@@ -50,7 +53,15 @@ class NumericKeyboard(BoxLayout):
         actions.add_widget(Button(text="OK",
                                   background_color=(0.3, 1, 0.3, 1),
                                   on_release=self.ok))
-        self.add_widget(actions)
+        teclado.add_widget(actions)
+        
+        error_area = BoxLayout(size_hint_y=None, height=35)
+        self.error_label = Label(
+            text="",
+            color=(1, 0.2, 0.2, 1)
+        )
+        error_area.add_widget(self.error_label)
+        self.add_widget(error_area)
         
         # Ajustar altura total del teclado
         self.bind(minimum_height=self.setter('height'))
@@ -63,13 +74,18 @@ class NumericKeyboard(BoxLayout):
         self.target.text = self.target.text[:-1]
 
     def ok(self, instance):
+        if self.target.text.strip() == "":
+            self.error_label.text = "El campo no puede estar vacío"
+            return
+
+        self.error_label.text = ""
         self.popup.dismiss()
 
     def cancel(self, instance):
         self.target.text = self.target._old_value
         self.popup.dismiss()
 
-
+  
 # ---------------------------------------------------------
 # 3) KeyboardManager: un único bind global
 # ---------------------------------------------------------
