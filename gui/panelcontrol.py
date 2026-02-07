@@ -56,17 +56,16 @@ class PanelControl(Screen):
     
     def actualizar_campos(self):
         visibles = MODALIDADES_VISIBLES[self.modalidad]
-        self.cargar_campos(self.ids.campos_modalidad, visibles)
+        self.inputs = self.cargar_campos(self.ids.campos_modalidad, visibles)
         comunes = CONCURSO_TODOS
-        self.cargar_campos(self.ids.campos_comunes,comunes)
-        
+        self.inputs.update(self.cargar_campos(self.ids.campos_comunes,comunes))
         self.keyboard_manager.rebind()
 
 
     def cargar_campos(self, layout, campos_dict):
         layout.clear_widgets()
         layout.add_widget(Widget(size_hint_y=1))
-        self.inputs = {}
+        inputs = {}
         
         for campo, label in campos_dict.items():
             fila = BoxLayout(size_hint_y= None, height= 40)
@@ -83,7 +82,7 @@ class PanelControl(Screen):
                 width=60,
                 input_filter='int'
             )
-            self.inputs[campo] = inp
+            inputs[campo] = inp
             
             columnas.add_widget(lbl)
             columnas.add_widget(inp)
@@ -95,11 +94,14 @@ class PanelControl(Screen):
             layout.add_widget(Widget(size_hint_x=1))
             
         layout.add_widget(Widget(size_hint_y=1))
+        return inputs
 
     def crono_start(self):
+        cfg = self.state.get_dict()
         for campo, widget in self.inputs.items():
-            self.cfg[campo] = int(widget.text)
-        self.state.update(self.cfg)
+            cfg[campo] = int(widget.text)
+            
+        self.state.update(cfg)
         self.state.start()
  
     def ir_a_ajustes(self):
