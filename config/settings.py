@@ -2,7 +2,7 @@ import json
 import os
 
 class Settings:
-    def __init__(self, path="config/settings.json"):
+    def __init__(self, path="/home/alex/cronomilano/config/settings.json"):
         self.path = path
         self.data = {}
         self.load()
