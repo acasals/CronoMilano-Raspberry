@@ -5,6 +5,7 @@ from kivy.uix.textinput import TextInput
 from kivy.core.window import Window
 from kivy.uix.widget import Widget
 from kivy.uix.screenmanager import Screen
+import socket
 
 from config.modalidades import MODALIDADES, MODALIDADES_VISIBLES, MODALIDADES_TODOS, CONCURSO_TODOS
 from gui.numeric_keyboard import NumericInput, KeyboardManager
@@ -40,6 +41,20 @@ class PanelControl(Screen):
         self.cfg = self.state.get_dict()
         self.actualizar_campos()
 
+        # Cargar IP
+        ip = self.get_local_ip()
+        self.ids.lbl_IP.text= f"{ip}:5000" 
+        
+    def get_local_ip(self):
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        try:
+            # No necesita conectarse realmente; solo determina la IP de salida
+            s.connect(("8.8.8.8", 80))
+            return s.getsockname()[0]
+        finally:
+            s.close()
+
+        
     def update_gui(self, state):
       if state["cronoenmarcha"]:
           self.manager.current = "running"
