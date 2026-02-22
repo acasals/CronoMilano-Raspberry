@@ -5,7 +5,11 @@ from kivy.uix.textinput import TextInput
 from kivy.core.window import Window
 from kivy.uix.widget import Widget
 from kivy.uix.screenmanager import Screen
+from kivy.uix.button import Button
+from kivy.uix.popup import Popup
+
 import socket
+import subprocess
 
 from config.modalidades import MODALIDADES, MODALIDADES_VISIBLES, MODALIDADES_TODOS, CONCURSO_TODOS
 from gui.numeric_keyboard import NumericInput, KeyboardManager
@@ -122,5 +126,37 @@ class PanelControl(Screen):
     def ir_a_ajustes(self):
         self.manager.transition.direction = 'right'
         self.manager.current = 'ajustes'
-        
+
+    def apagar_sistema(self, *args):
+        self.mostrar_confirmacion()
+
+    def mostrar_confirmacion(self, *args):
+
+        layout = BoxLayout(orientation='vertical', spacing=10, padding=10)
+        layout.add_widget(Label(text="¿Seguro que quieres apagar el sistema?"))
+        botones = BoxLayout(spacing=10)
+        btn_si = Button(text="Sí", on_press=self._apagar)
+        btn_no = Button(text="No", on_press=lambda x: popup_apagar.dismiss())
+
+        botones.add_widget(btn_si)
+        botones.add_widget(btn_no)
+
+        layout.add_widget(botones)
+
+        # Crear popup
+        global popup_apagar
+        popup_apagar = Popup(title="Apagar sistema",
+                      content=layout,
+                      size_hint=(0.6, 0.4),
+                      auto_dismiss=False)
+        popup_apagar.open()
+
+    def _apagar(self, *args):
+        popup_apagar.dismiss()
+        try:
+            subprocess.run(["sudo", "shutdown", "-h", "now"])
+        except Exception as e:
+            print("Error al intentar apagar:", e)
+
+
 
